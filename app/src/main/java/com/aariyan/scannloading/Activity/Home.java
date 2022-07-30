@@ -82,6 +82,8 @@ public class Home extends AppCompatActivity {
 
     private ConstraintLayout snackBarLayout;
 
+    int position = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -100,6 +102,9 @@ public class Home extends AppCompatActivity {
         if (getIntent() != null) {
             userName = getIntent().getStringExtra("name");
             userId = getIntent().getIntExtra("id", userId);
+            if (getIntent().hasExtra("position")) {
+                position = getIntent().getIntExtra("position",position);
+            }
         }
 
         setTitle(userName);
@@ -232,6 +237,13 @@ public class Home extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onResume() {
+        loadingData();
+        recyclerView.scrollToPosition(position);
+        super.onResume();
+    }
+
     private void initUI() {
 
         snackBarLayout = findViewById(R.id.homeConstraintLayout);
@@ -261,18 +273,7 @@ public class Home extends AppCompatActivity {
                     Toast.makeText(Home.this, "Please select date!", Toast.LENGTH_SHORT).show();
                     return;
                 }
-
-                if (headerLinesList.size() > 0) {
-                    recyclerView.setVisibility(View.VISIBLE);
-                    warningMessage.setVisibility(View.GONE);
-                    adapter = new HeaderLinesAdapter(Home.this, headerLinesList);
-                    recyclerView.setAdapter(adapter);
-                    adapter.notifyDataSetChanged();
-                    Snackbar.make(snackBarLayout, "Data is showing from local storage.", Snackbar.LENGTH_LONG).show();
-                } else {
-                    callAPIs();
-                    Snackbar.make(snackBarLayout, "Data is showing from API.", Snackbar.LENGTH_LONG).show();
-                }
+                loadingData();
             }
         });
 
@@ -301,6 +302,20 @@ public class Home extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void loadingData() {
+        if (headerLinesList.size() > 0) {
+            recyclerView.setVisibility(View.VISIBLE);
+            warningMessage.setVisibility(View.GONE);
+            adapter = new HeaderLinesAdapter(Home.this, headerLinesList);
+            recyclerView.setAdapter(adapter);
+            adapter.notifyDataSetChanged();
+            Snackbar.make(snackBarLayout, "Data is showing from local storage.", Snackbar.LENGTH_LONG).show();
+        } else {
+            callAPIs();
+            Snackbar.make(snackBarLayout, "Data is showing from API.", Snackbar.LENGTH_LONG).show();
+        }
     }
 
     private void callAPIs() {

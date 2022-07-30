@@ -13,21 +13,26 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.aariyan.scannloading.Activity.HeaderNLineActivity;
 import com.aariyan.scannloading.Constant.Constant;
 import com.aariyan.scannloading.Interface.QuantityUpdater;
+import com.aariyan.scannloading.Interface.SingleClickUpdate;
 import com.aariyan.scannloading.Model.LinesModel;
 import com.aariyan.scannloading.R;
 
 import java.util.List;
+
+import io.reactivex.rxjava3.core.Single;
 
 public class HeaderNLineAdapter extends RecyclerView.Adapter<HeaderNLineAdapter.ViewHolder> {
 
     private Context context;
     private List<LinesModel> list;
     private QuantityUpdater quantityUpdater;
+    private SingleClickUpdate singleClickUpdate;
 
-    public HeaderNLineAdapter(Context context, List<LinesModel> list, QuantityUpdater updater) {
+    public HeaderNLineAdapter(Context context, List<LinesModel> list, QuantityUpdater updater, SingleClickUpdate singleClickUpdate) {
         this.context = context;
         this.list = list;
         this.quantityUpdater = updater;
+        this.singleClickUpdate = singleClickUpdate;
     }
 
     @NonNull
@@ -48,6 +53,14 @@ public class HeaderNLineAdapter extends RecyclerView.Adapter<HeaderNLineAdapter.
                 quantityUpdater.onClick(model.getOrderId(), model.getOrderDetailId(), Constant.userId,
                         model.getLoaded(), model.getQty(), Constant.getDate(), Constant.types[0], model.getPrice(), model.getPastelDescription());
                 return false;
+            }
+        });
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                singleClickUpdate.onSingleClick(model.getOrderId(), model.getOrderDetailId(), Constant.userId,
+                        model.getLoaded(), model.getQty(), Constant.getDate(), Constant.types[0], model.getPrice(), model.getPastelDescription());
             }
         });
     }

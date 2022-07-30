@@ -56,6 +56,7 @@ public class HeaderLinesAdapter extends RecyclerView.Adapter<HeaderLinesAdapter.
                 intent.putExtra("invoiceNo", model.getInvoiceNo());
                 intent.putExtra("address", model.getDeladdress());
                 intent.putExtra("value", model.getValue());
+                intent.putExtra("position", position);
                 context.startActivity(intent);
                 return true;
             }

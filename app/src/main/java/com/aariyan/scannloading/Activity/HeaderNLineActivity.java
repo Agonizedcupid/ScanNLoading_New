@@ -5,6 +5,7 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -20,6 +21,7 @@ import com.aariyan.scannloading.Adapter.HeaderNLineAdapter;
 import com.aariyan.scannloading.Constant.Constant;
 import com.aariyan.scannloading.Database.DatabaseAdapter;
 import com.aariyan.scannloading.Interface.QuantityUpdater;
+import com.aariyan.scannloading.Interface.SingleClickUpdate;
 import com.aariyan.scannloading.Model.LinesModel;
 import com.aariyan.scannloading.Network.Filtering;
 import com.aariyan.scannloading.R;
@@ -30,7 +32,7 @@ import com.google.android.material.snackbar.Snackbar;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HeaderNLineActivity extends AppCompatActivity implements QuantityUpdater {
+public class HeaderNLineActivity extends AppCompatActivity implements QuantityUpdater, SingleClickUpdate {
 
     private int orderId = 0;
     private String orderNumber, createdBy, orderDate, invoiceNo, address, sName;
@@ -55,6 +57,8 @@ public class HeaderNLineActivity extends AppCompatActivity implements QuantityUp
     private EditText superVisorCode, quantityUpdate, comment;
     private TextView itemNames, itemPrice, titleOne;
     private Button updateQuantityBtn, updateQuantityBtnByBarcode;
+
+    int position = 0;
 
     //
 
@@ -84,6 +88,7 @@ public class HeaderNLineActivity extends AppCompatActivity implements QuantityUp
             address = getIntent().getStringExtra("address");
             orderValue = getIntent().getIntExtra("value", 0);
             sName = getIntent().getStringExtra("storeName");
+            position = getIntent().getIntExtra("position", position);
         }
 
         initUI();
@@ -148,6 +153,14 @@ public class HeaderNLineActivity extends AppCompatActivity implements QuantityUp
         orderNo.setText(orderNumber);
         storeName.setText(sName);
 
+        closeBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(HeaderNLineActivity.this, Home.class).putExtra("position", position));
+                finish();
+            }
+        });
+
 
         loadLinesFromSQLite();
     }
@@ -159,7 +172,7 @@ public class HeaderNLineActivity extends AppCompatActivity implements QuantityUp
         superVisorCode.setVisibility(View.GONE);
         barcodeLineList.clear();
         barcodeLineList = databaseAdapter.getLinesByDateRouteNameOrderTypes(orderId);
-        LinesModel model = filtering.getLineByBarcode(barcodeLineList, barcodeEditText.getText().toString(),0);
+        LinesModel model = filtering.getLineByBarcode(barcodeLineList, barcodeEditText.getText().toString(), 0);
         if (model != null) {
             behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
             itemNames.setText(model.getPastelDescription());
@@ -236,7 +249,7 @@ public class HeaderNLineActivity extends AppCompatActivity implements QuantityUp
         // linesList.clear();
         linesList = databaseAdapter.getLinesByDateRouteNameOrderTypes(orderId);
         linesList = filtering.getFlagData(linesList, flag);
-        adapter = new HeaderNLineAdapter(this, linesList, this);
+        adapter = new HeaderNLineAdapter(this, linesList, this, this);
         //HeaderNLineAdapter adapter = new HeaderNLineAdapter(this, linesList, this);
         if (flag == 0) {
             blackRecyclerView.setAdapter(adapter);
@@ -333,5 +346,40 @@ public class HeaderNLineActivity extends AppCompatActivity implements QuantityUp
         });
 
 
+    }
+
+    @Override
+    public void onSingleClick(int orderId, int orderDetailsId, int userId, int loaded, int quantity, String date, String type, double price, String itemName) {
+        int flag = 1;
+        long ids = databaseAdapter.updateLinesQuantity(orderId, orderDetailsId,
+                userId, quantity, flag);
+        if (ids < 0) {
+            Toast.makeText(HeaderNLineActivity.this, "Unable to update Lines Table!", Toast.LENGTH_SHORT).show();
+        }
+
+        //then insert data into Queue table to sync on server:
+        StringBuilder builder = new StringBuilder();
+        builder.append(orderId).append("|").append(orderDetailsId).append("|")
+                .append(userId).append("|").append(loaded).append("|").append(quantityUpdate.getText().toString())
+                .append("|").append(Constant.getDate()).append("|").append("0.0");
+
+        if (!Constant.isInternetConnected(HeaderNLineActivity.this)) {
+            //As there has no connection, we are saving data locally
+            Snackbar.make(snackBarLayout, "No Stable Internet Connection!", Snackbar.LENGTH_SHORT).show();
+            long checkInsert = databaseAdapter.insertQueue(Constant.types[0], builder.toString());
+            Log.d(TAG, "" + builder);
+            if (checkInsert > 0) {
+                Snackbar.make(snackBarLayout, "Data stored locally!", Snackbar.LENGTH_SHORT).show();
+                loadLinesFromSQLite();
+            } else {
+                Snackbar.make(snackBarLayout, "Unable to store data!", Snackbar.LENGTH_SHORT).show();
+            }
+        } else {
+            //If there has a connection then upload directly to the server:
+            Snackbar.make(snackBarLayout, "You have stable internet connection!", Snackbar.LENGTH_SHORT).show();
+            //So upload to the server directly
+            loadLinesFromSQLite();
+            Snackbar.make(snackBarLayout, "Posted to the server directly!", Snackbar.LENGTH_SHORT).show();
+        }
     }
 }
