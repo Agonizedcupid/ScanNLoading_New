@@ -76,6 +76,8 @@ public class HeaderLinesAdapter extends RecyclerView.Adapter<HeaderLinesAdapter.
         //Red
         int countTwo = databaseAdapter.countTwo(model.getOrderId());
 
+        Log.d("FLAG_TESTING", ""+countZero+","+countOne+","+countTwo);
+
         if (countOne == list.size()) {
             holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.holo_green_dark));
         }

@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.DatePickerDialog;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -240,7 +241,10 @@ public class Home extends AppCompatActivity {
 
     @Override
     protected void onResume() {
+        databaseAdapter.dropLinesTable();
+        databaseAdapter.dropHeaderTable();
         loadingData();
+        //loadingResumeData();
         recyclerView.scrollToPosition(position);
         super.onResume();
     }
@@ -267,9 +271,6 @@ public class Home extends AppCompatActivity {
         getLoadingBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-
-
                 if (date.equals("")) {
                     Toast.makeText(Home.this, "Please select date!", Toast.LENGTH_SHORT).show();
                     return;
@@ -305,11 +306,25 @@ public class Home extends AppCompatActivity {
 
     }
 
+    private void loadingResumeData() {
+        if (headerLinesList.size() > 0) {
+            Toast.makeText(this, "Ache", Toast.LENGTH_SHORT).show();
+            recyclerView.setVisibility(View.VISIBLE);
+            warningMessage.setVisibility(View.GONE);
+            adapter = new HeaderLinesAdapter(Home.this, headerLinesList);
+            recyclerView.setAdapter(adapter);
+            adapter.notifyDataSetChanged();
+            Snackbar.make(snackBarLayout, "Data is showing from local storage.", Snackbar.LENGTH_LONG).show();
+        } else {
+
+        }
+    }
+
     private void loadingData() {
         //headerLinesList.clear();
         Toast.makeText(this, "" + databaseAdapter.getHeaderByDateRouteNameOrderTypes(date, selectedRoute, selectedOrder, userId).size(), Toast.LENGTH_SHORT).show();
         //headerLinesList = databaseAdapter.getHeaderByDateRouteNameOrderTypes(userName, date, selectedRoute, selectedOrder, userId);
-        headerLinesList = databaseAdapter.getHeaderByDateRouteNameOrderTypes( date, selectedRoute, selectedOrder, userId);
+        headerLinesList = databaseAdapter.getHeaderByDateRouteNameOrderTypes(date, selectedRoute, selectedOrder, userId);
 
         if (headerLinesList.size() > 0) {
             Toast.makeText(this, "Ache", Toast.LENGTH_SHORT).show();
@@ -324,6 +339,8 @@ public class Home extends AppCompatActivity {
             Toast.makeText(this, "Nai", Toast.LENGTH_SHORT).show();
             Snackbar.make(snackBarLayout, "Data is showing from API.", Snackbar.LENGTH_LONG).show();
         }
+
+        // callAPIs();
     }
 
     private void callAPIs() {
@@ -352,6 +369,7 @@ public class Home extends AppCompatActivity {
 
             JSONArray Headers = finalResponse.getJSONArray("Headers");
             JSONArray Lines = finalResponse.getJSONArray("Lines");
+
 
 //            headerLinesList.clear();
 //            if (Headers.length() > 0) {
@@ -512,59 +530,57 @@ public class Home extends AppCompatActivity {
                 warningMessage.setVisibility(View.VISIBLE);
                 warningMessage.setText("No data found!");
                 recyclerView.setVisibility(View.GONE);
+            }
 
-                linesList.clear();
-                if (Lines.length() > 0) {
+            linesList.clear();
+            if (Lines.length() > 0) {
+                for (int i = 0; i < Lines.length(); i++) {
+                    JSONObject single = Lines.getJSONObject(i);
+                    int blnPicked = single.getInt("blnPicked");
+                    int Loaded = single.getInt("Loaded");
+                    String PastelCode = single.getString("PastelCode");
+                    String PastelDescription = single.getString("PastelDescription");
+                    int ProductId = single.getInt("ProductId");
+                    int Qty = single.getInt("Qty");
+                    int QtyOrdered = single.getInt("QtyOrdered");
+                    double Price = single.getDouble("Price");
+                    String Comment = single.getString("Comment");
+                    String UnitSize = single.getString("UnitSize");
+                    String strBulkUnit = single.getString("strBulkUnit");
+                    int UnitWeight = single.getInt("UnitWeight");
+                    int OrderId = single.getInt("OrderId");
+                    int OrderDetailId = single.getInt("OrderDetailId");
+                    String BarCode = single.getString("BarCode");
+                    String ScannedQty = single.getString("ScannedQty");
+                    int isRandom = single.getInt("isRandom");
+                    String PickingTeam = single.getString("PickingTeam");
 
-                    for (int i = 0; i < Lines.length(); i++) {
-                        JSONObject single = Lines.getJSONObject(i);
-                        int blnPicked = single.getInt("blnPicked");
-                        int Loaded = single.getInt("Loaded");
-                        String PastelCode = single.getString("PastelCode");
-                        String PastelDescription = single.getString("PastelDescription");
-                        int ProductId = single.getInt("ProductId");
-                        int Qty = single.getInt("Qty");
-                        int QtyOrdered = single.getInt("QtyOrdered");
-                        double Price = single.getDouble("Price");
-                        String Comment = single.getString("Comment");
-                        String UnitSize = single.getString("UnitSize");
-                        String strBulkUnit = single.getString("strBulkUnit");
-                        int UnitWeight = single.getInt("UnitWeight");
-                        int OrderId = single.getInt("OrderId");
-                        int OrderDetailId = single.getInt("OrderDetailId");
-                        String BarCode = single.getString("BarCode");
-                        String ScannedQty = single.getString("ScannedQty");
-                        int isRandom = single.getInt("isRandom");
-                        String PickingTeam = single.getString("PickingTeam");
+                    LinesModel linesModel = new LinesModel(
+                            blnPicked, Loaded, PastelCode, PastelDescription, ProductId, Qty, QtyOrdered,
+                            Price, Comment, UnitSize, strBulkUnit, UnitWeight, OrderId, OrderDetailId, BarCode,
+                            ScannedQty, isRandom, PickingTeam
+                    );
 
-                        LinesModel linesModel = new LinesModel(
-                                blnPicked, Loaded, PastelCode, PastelDescription, ProductId, Qty, QtyOrdered,
-                                Price, Comment, UnitSize, strBulkUnit, UnitWeight, OrderId, OrderDetailId, BarCode,
-                                ScannedQty, isRandom, PickingTeam
-                        );
+                    linesList.add(linesModel);
 
-                        linesList.add(linesModel);
-
-                        //if data is not empty
-                        if (Headers.length() > 0 && Lines.length() > 0) {
-                            // Insert into SQLite:
-                            long id = databaseAdapter.insertLines(blnPicked, Loaded, PastelCode, PastelDescription, ProductId, Qty, QtyOrdered, Price, Comment,
-                                    UnitSize, strBulkUnit, UnitWeight, OrderId, OrderDetailId, BarCode, ScannedQty, isRandom, PickingTeam,
-                                    date, selectedRoute, selectedOrder, userId);
-
-                            if (id > 0) {
-                                Snackbar.make(snackBarLayout, "Data also saved on local database", Snackbar.LENGTH_SHORT).show();
-                            }
+                    //if data is not empty
+                    if (Headers.length() > 0 && Lines.length() > 0) {
+                        // Insert into SQLite:
+                        long id = databaseAdapter.insertLines(blnPicked, Loaded, PastelCode, PastelDescription, ProductId, Qty, QtyOrdered, Price, Comment,
+                                UnitSize, strBulkUnit, UnitWeight, OrderId, OrderDetailId, BarCode, ScannedQty, isRandom, PickingTeam,
+                                date, selectedRoute, selectedOrder, userId);
+                        Log.d("CHECKING_SIZE", "parseOrdernOrderJson: " + id + " - " + Lines.length());
+                        if (id > 0) {
+                            Snackbar.make(snackBarLayout, "Data also saved on local database", Snackbar.LENGTH_SHORT).show();
                         }
                     }
-
-                } else {
-                    progressBar.setVisibility(View.GONE);
-                    warningMessage.setVisibility(View.VISIBLE);
-                    warningMessage.setText("No data found!");
-                    recyclerView.setVisibility(View.GONE);
-
                 }
+
+            } else {
+                progressBar.setVisibility(View.GONE);
+                warningMessage.setVisibility(View.VISIBLE);
+                warningMessage.setText("No data found!");
+                recyclerView.setVisibility(View.GONE);
 
             }
 

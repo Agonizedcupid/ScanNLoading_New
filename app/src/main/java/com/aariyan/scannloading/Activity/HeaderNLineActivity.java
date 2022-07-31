@@ -20,17 +20,27 @@ import android.widget.Toast;
 import com.aariyan.scannloading.Adapter.HeaderNLineAdapter;
 import com.aariyan.scannloading.Constant.Constant;
 import com.aariyan.scannloading.Database.DatabaseAdapter;
+import com.aariyan.scannloading.Database.SharedPreferences;
 import com.aariyan.scannloading.Interface.QuantityUpdater;
 import com.aariyan.scannloading.Interface.SingleClickUpdate;
 import com.aariyan.scannloading.Model.LinesModel;
+import com.aariyan.scannloading.Model.PostLinesModel;
 import com.aariyan.scannloading.Network.Filtering;
 import com.aariyan.scannloading.R;
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class HeaderNLineActivity extends AppCompatActivity implements QuantityUpdater, SingleClickUpdate {
 
@@ -70,6 +80,8 @@ public class HeaderNLineActivity extends AppCompatActivity implements QuantityUp
     //Instantiating:
     private Filtering filtering;
     HeaderNLineAdapter adapter;
+
+    private List<PostLinesModel> postLinesList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -216,6 +228,8 @@ public class HeaderNLineActivity extends AppCompatActivity implements QuantityUp
                 } else {
                     //If there has a connection then upload directly to the server:
                     Snackbar.make(snackBarLayout, "You have stable internet connection!", Snackbar.LENGTH_SHORT).show();
+                    postLinesList.add(new PostLinesModel(new Random().nextInt(), "UPDATE", builder.toString()));
+                    postLinesData(postLinesList);
                     //So upload to the server directly
                     loadLinesFromSQLite();
                     Snackbar.make(snackBarLayout, "Posted to the server directly!", Snackbar.LENGTH_SHORT).show();
@@ -334,6 +348,8 @@ public class HeaderNLineActivity extends AppCompatActivity implements QuantityUp
                 } else {
                     //If there has a connection then upload directly to the server:
                     Snackbar.make(snackBarLayout, "You have stable internet connection!", Snackbar.LENGTH_SHORT).show();
+                    postLinesList.add(new PostLinesModel(new Random().nextInt(), "UPDATE", builder.toString()));
+                    postLinesData(postLinesList);
                     //So upload to the server directly
                     loadLinesFromSQLite();
                     Snackbar.make(snackBarLayout, "Posted to the server directly!", Snackbar.LENGTH_SHORT).show();
@@ -344,6 +360,44 @@ public class HeaderNLineActivity extends AppCompatActivity implements QuantityUp
         });
 
 
+    }
+
+    private void postLinesData(List<PostLinesModel> getStock) {
+        SharedPreferences sharedPreferences = new SharedPreferences(HeaderNLineActivity.this);
+
+        String appendedUrl = sharedPreferences.getURL(Constant.IP_MODE_KEY, Constant.IP_URL);
+        if (getStock.size() > 0) {
+            StringRequest mStringRequest = new StringRequest(
+                    Request.Method.POST,
+                    appendedUrl + "PostQueueStaging.php",
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            Log.d("FEEDBACK", response);
+                            Toast.makeText(HeaderNLineActivity.this, response.toString() + " Posted successfully!", Toast.LENGTH_SHORT).show();
+                            //Now Removing the data from SQLite:
+                            //deleteUploadedJobs();
+                            postLinesList.clear();
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Toast.makeText(HeaderNLineActivity.this, "" + error.getMessage(), Toast.LENGTH_SHORT).show();
+                    Log.d("FEEDBACK", ""+error.getMessage());
+                }
+            }
+            ) {
+                @Override
+                public byte[] getBody() throws AuthFailureError {
+                    String jsonString = new Gson().toJson(getStock).toString();
+                    return jsonString.getBytes();
+                }
+            };
+            Volley.newRequestQueue(HeaderNLineActivity.this).add(mStringRequest);
+        } else {
+            Toast.makeText(HeaderNLineActivity.this, "Not enough data!", Toast.LENGTH_SHORT).show();
+
+        }
     }
 
     @Override
@@ -376,6 +430,8 @@ public class HeaderNLineActivity extends AppCompatActivity implements QuantityUp
             //If there has a connection then upload directly to the server:
             Snackbar.make(snackBarLayout, "You have stable internet connection!", Snackbar.LENGTH_SHORT).show();
             //So upload to the server directly
+            postLinesList.add(new PostLinesModel(new Random().nextInt(),"UPDATE", builder.toString()));
+            postLinesData(postLinesList);
             loadLinesFromSQLite();
             Snackbar.make(snackBarLayout, "Posted to the server directly!", Snackbar.LENGTH_SHORT).show();
         }

@@ -397,6 +397,11 @@ public class DatabaseAdapter {
         database.execSQL(DatabaseHelper.DROP_HEADERS_TABLE);
         database.execSQL(DatabaseHelper.CREATE_HEADERS_TABLE);
     }
+    public void dropLinesTable() {
+        SQLiteDatabase database = helper.getWritableDatabase();
+        database.execSQL(DatabaseHelper.DROP_LINES_TABLE);
+        database.execSQL(DatabaseHelper.CREATE_LINES_TABLE);
+    }
 
     class DatabaseHelper extends SQLiteOpenHelper {
         private Context context;
