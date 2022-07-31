@@ -120,20 +120,25 @@ public class DatabaseAdapter {
 
 
     //get HEADER by User Name , date, route Name, order types, user id
-    public List<HeadersModel> getHeaderByDateRouteNameOrderTypes(String userName, String date, int routeName, int orderTypes, int userId) {
+    public List<HeadersModel> getHeaderByDateRouteNameOrderTypes(String date, int routeName, int orderTypes, int userId) {
 
         headerList.clear();
         SQLiteDatabase database = helper.getWritableDatabase();
         //select * from tableName where name = ? and customerName = ?:
         // String selection = DatabaseHelper.USER_NAME+" where ? AND "+DatabaseHelper.CUSTOMER_NAME+" LIKE ?";
-        String selection = DatabaseHelper.UserName + "=?" +
-                " and " + DatabaseHelper.DATE + "=?" +
+//        String selection = DatabaseHelper.UserName + "=?" +
+//                " and " + DatabaseHelper.DATE + "=?" +
+//                " and " + DatabaseHelper.ROUTE_NAME + "=?" +
+//                " and " + DatabaseHelper.ORDER_TYPES + "=?" +
+//                " and " + DatabaseHelper.userId + "=?";
+
+        String selection = DatabaseHelper.DATE + "=?" +
                 " and " + DatabaseHelper.ROUTE_NAME + "=?" +
                 " and " + DatabaseHelper.ORDER_TYPES + "=?" +
                 " and " + DatabaseHelper.userId + "=?";
 
 
-        String[] args = {userName, date, "" + routeName, "" + orderTypes, "" + userId};
+        String[] args = {date, "" + routeName, "" + orderTypes, "" + userId};
         String[] columns = {DatabaseHelper.UID, DatabaseHelper.StoreName, DatabaseHelper.Route, DatabaseHelper.DeliverySequence,
                 DatabaseHelper.Invoiced, DatabaseHelper.InvoiceNo, DatabaseHelper.OrderNo, DatabaseHelper.CustomerPastelCode,
                 DatabaseHelper.CustomerId, DatabaseHelper.MESSAGESINV, DatabaseHelper.UserName, DatabaseHelper.OrderId
@@ -382,6 +387,16 @@ public class DatabaseAdapter {
 //
 //        return ids;
 //    }
+
+    /**
+     * Drop Header table
+     */
+
+    public void dropHeaderTable() {
+        SQLiteDatabase database = helper.getWritableDatabase();
+        database.execSQL(DatabaseHelper.DROP_HEADERS_TABLE);
+        database.execSQL(DatabaseHelper.CREATE_HEADERS_TABLE);
+    }
 
     class DatabaseHelper extends SQLiteOpenHelper {
         private Context context;
