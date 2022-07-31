@@ -191,7 +191,7 @@ public class DatabaseAdapter {
                 DatabaseHelper.PastelDescription, DatabaseHelper.ProductId, DatabaseHelper.Qty, DatabaseHelper.QtyOrdered,
                 DatabaseHelper.Price, DatabaseHelper.Comment, DatabaseHelper.UnitSize, DatabaseHelper.strBulkUnit
                 , DatabaseHelper.UnitWeight, DatabaseHelper.OrderIds, DatabaseHelper.OrderDetailId, DatabaseHelper.BarCode, DatabaseHelper.ScannedQty
-                , DatabaseHelper.isRandom, DatabaseHelper.PickingTeam,DatabaseHelper.FLAG};
+                , DatabaseHelper.isRandom, DatabaseHelper.PickingTeam, DatabaseHelper.FLAG};
 
         Cursor cursor = database.query(DatabaseHelper.LINES_TABLE_NAME, columns, selection, args, null, null, null);
         while (cursor.moveToNext()) {
@@ -220,6 +220,36 @@ public class DatabaseAdapter {
         }
         return linesList;
 
+    }
+
+    public int countZero(int orderId) {
+        SQLiteDatabase db = helper.getWritableDatabase();
+        Cursor count = db.rawQuery("SELECT COUNT(\"FLAG\") from lines WHERE \"FLAG\" =0 AND \"OrderId\" = " + orderId, null);
+
+        int intSignedCount = 0;
+        count.moveToFirst();
+        intSignedCount = count.getInt(0);
+        return intSignedCount;
+    }
+
+    public int countOne(int orderId) {
+        SQLiteDatabase db = helper.getWritableDatabase();
+        Cursor count = db.rawQuery("SELECT COUNT(\"FLAG\") from lines WHERE \"FLAG\" =1 AND \"OrderId\" = " + orderId, null);
+
+        int intSignedCount = 0;
+        count.moveToFirst();
+        intSignedCount = count.getInt(0);
+        return intSignedCount;
+    }
+
+    public int countTwo(int orderId) {
+        SQLiteDatabase db = helper.getWritableDatabase();
+        Cursor count = db.rawQuery("SELECT COUNT(\"FLAG\") from lines WHERE \"FLAG\" =2 AND \"OrderId\" = " + orderId, null);
+
+        int intSignedCount = 0;
+        count.moveToFirst();
+        intSignedCount = count.getInt(0);
+        return intSignedCount;
     }
 
     //Update Quantity of lines table, as well as changing the flag value using orderId & orderDetailsId:

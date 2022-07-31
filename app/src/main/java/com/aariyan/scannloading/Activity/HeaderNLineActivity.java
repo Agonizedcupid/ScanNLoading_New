@@ -156,12 +156,10 @@ public class HeaderNLineActivity extends AppCompatActivity implements QuantityUp
         closeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(HeaderNLineActivity.this, Home.class).putExtra("position", position));
+                //startActivity(new Intent(HeaderNLineActivity.this, Home.class).putExtra("position", position));
                 finish();
             }
         });
-
-
         loadLinesFromSQLite();
     }
 
