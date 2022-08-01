@@ -245,8 +245,7 @@ public class Home extends AppCompatActivity {
 
     @Override
     protected void onResume() {
-        databaseAdapter.dropLinesTable();
-        databaseAdapter.dropHeaderTable();
+
         loadingData();
         //loadingResumeData();
 
@@ -287,8 +286,6 @@ public class Home extends AppCompatActivity {
                     Toast.makeText(Home.this, "Please select date!", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                databaseAdapter.dropHeaderTable();
-                databaseAdapter.dropLinesTable();
                 loadingData();
             }
         });
@@ -353,8 +350,19 @@ public class Home extends AppCompatActivity {
 //            Toast.makeText(this, "Nai", Toast.LENGTH_SHORT).show();
 //            Snackbar.make(snackBarLayout, "Data is showing from API.", Snackbar.LENGTH_LONG).show();
 //        }
+        if (!Constant.isInternetConnected(Home.this)) {
+            headerLinesList = databaseAdapter.getHeaderByDateRouteNameOrderTypes(date, selectedRoute, selectedOrder, userId);
+            recyclerView.setVisibility(View.VISIBLE);
+            warningMessage.setVisibility(View.GONE);
+            adapter = new HeaderLinesAdapter(Home.this, headerLinesList);
+            recyclerView.setAdapter(adapter);
+            adapter.notifyDataSetChanged();
+        } else {
+            databaseAdapter.dropLinesTable();
+            databaseAdapter.dropHeaderTable();
+            callAPIs();
+        }
 
-         callAPIs();
     }
 
     private void callAPIs() {
