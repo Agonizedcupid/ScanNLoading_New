@@ -4,6 +4,7 @@ import static com.aariyan.scannloading.Constant.Constant.DEFAULT;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -29,6 +30,7 @@ import com.aariyan.scannloading.Interface.UserListClick;
 import com.aariyan.scannloading.Model.UserModel;
 import com.aariyan.scannloading.Network.APIs;
 import com.aariyan.scannloading.Network.ApiClient;
+import com.aariyan.scannloading.Service.PostLinesService;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.VolleyError;
@@ -236,6 +238,19 @@ public class MainActivity extends AppCompatActivity implements UserListClick {
                 });
 
         requestQueue.add(array);
+    }
+
+    @Override
+    protected void onResume() {
+        if (Constant.isInternetConnected(this)) {
+            if (!PostLinesService.isServiceRunning) {
+                ContextCompat.startForegroundService(this, new Intent(this, PostLinesService.class));
+            }
+        } else {
+            Toast.makeText(this, "No Internet Connection!", Toast.LENGTH_SHORT).show();
+        }
+
+        super.onResume();
     }
 
     private void parseJson(JSONArray array) {

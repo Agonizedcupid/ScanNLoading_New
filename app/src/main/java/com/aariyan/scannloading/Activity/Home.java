@@ -1,12 +1,16 @@
 package com.aariyan.scannloading.Activity;
 
+import static com.aariyan.scannloading.Constant.Constant.position;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.DatePickerDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -29,6 +33,7 @@ import com.aariyan.scannloading.Model.LinesModel;
 import com.aariyan.scannloading.Model.OrderModel;
 import com.aariyan.scannloading.Model.RouteModel;
 import com.aariyan.scannloading.R;
+import com.aariyan.scannloading.Service.PostLinesService;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
@@ -83,7 +88,6 @@ public class Home extends AppCompatActivity {
 
     private ConstraintLayout snackBarLayout;
 
-    public static int position = 0;
     private List<Integer> flagList = new ArrayList<>();
 
     @Override
@@ -245,7 +249,15 @@ public class Home extends AppCompatActivity {
         databaseAdapter.dropHeaderTable();
         loadingData();
         //loadingResumeData();
-        recyclerView.scrollToPosition(position);
+
+        if (Constant.isInternetConnected(this)) {
+            if (!PostLinesService.isServiceRunning) {
+                ContextCompat.startForegroundService(this, new Intent(this, PostLinesService.class));
+            }
+        } else {
+            Toast.makeText(this, "No Internet Connection!", Toast.LENGTH_SHORT).show();
+        }
+
         super.onResume();
     }
 
@@ -275,6 +287,8 @@ public class Home extends AppCompatActivity {
                     Toast.makeText(Home.this, "Please select date!", Toast.LENGTH_SHORT).show();
                     return;
                 }
+                databaseAdapter.dropHeaderTable();
+                databaseAdapter.dropLinesTable();
                 loadingData();
             }
         });
@@ -322,25 +336,25 @@ public class Home extends AppCompatActivity {
 
     private void loadingData() {
         //headerLinesList.clear();
-        Toast.makeText(this, "" + databaseAdapter.getHeaderByDateRouteNameOrderTypes(date, selectedRoute, selectedOrder, userId).size(), Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "" + databaseAdapter.getHeaderByDateRouteNameOrderTypes(date, selectedRoute, selectedOrder, userId).size(), Toast.LENGTH_SHORT).show();
         //headerLinesList = databaseAdapter.getHeaderByDateRouteNameOrderTypes(userName, date, selectedRoute, selectedOrder, userId);
-        headerLinesList = databaseAdapter.getHeaderByDateRouteNameOrderTypes(date, selectedRoute, selectedOrder, userId);
+        //headerLinesList = databaseAdapter.getHeaderByDateRouteNameOrderTypes(date, selectedRoute, selectedOrder, userId);
 
-        if (headerLinesList.size() > 0) {
-            Toast.makeText(this, "Ache", Toast.LENGTH_SHORT).show();
-            recyclerView.setVisibility(View.VISIBLE);
-            warningMessage.setVisibility(View.GONE);
-            adapter = new HeaderLinesAdapter(Home.this, headerLinesList);
-            recyclerView.setAdapter(adapter);
-            adapter.notifyDataSetChanged();
-            Snackbar.make(snackBarLayout, "Data is showing from local storage.", Snackbar.LENGTH_LONG).show();
-        } else {
-            callAPIs();
-            Toast.makeText(this, "Nai", Toast.LENGTH_SHORT).show();
-            Snackbar.make(snackBarLayout, "Data is showing from API.", Snackbar.LENGTH_LONG).show();
-        }
+//        if (headerLinesList.size() > 0) {
+//            Toast.makeText(this, "Ache", Toast.LENGTH_SHORT).show();
+//            recyclerView.setVisibility(View.VISIBLE);
+//            warningMessage.setVisibility(View.GONE);
+//            adapter = new HeaderLinesAdapter(Home.this, headerLinesList);
+//            recyclerView.setAdapter(adapter);
+//            adapter.notifyDataSetChanged();
+//            Snackbar.make(snackBarLayout, "Data is showing from local storage.", Snackbar.LENGTH_LONG).show();
+//        } else {
+//            callAPIs();
+//            Toast.makeText(this, "Nai", Toast.LENGTH_SHORT).show();
+//            Snackbar.make(snackBarLayout, "Data is showing from API.", Snackbar.LENGTH_LONG).show();
+//        }
 
-        // callAPIs();
+         callAPIs();
     }
 
     private void callAPIs() {
@@ -521,8 +535,10 @@ public class Home extends AppCompatActivity {
 
                 adapter = new HeaderLinesAdapter(Home.this, headerLinesList);
                 recyclerView.setAdapter(adapter);
+                recyclerView.scrollToPosition(position);
                 adapter.notifyDataSetChanged();
 
+                Toast.makeText(this, "Position: "+position, Toast.LENGTH_SHORT).show();
                 progressBar.setVisibility(View.GONE);
 
             } else {
@@ -542,6 +558,7 @@ public class Home extends AppCompatActivity {
                     String PastelDescription = single.getString("PastelDescription");
                     int ProductId = single.getInt("ProductId");
                     int Qty = single.getInt("Qty");
+                    //int Qty = 777;
                     int QtyOrdered = single.getInt("QtyOrdered");
                     double Price = single.getDouble("Price");
                     String Comment = single.getString("Comment");

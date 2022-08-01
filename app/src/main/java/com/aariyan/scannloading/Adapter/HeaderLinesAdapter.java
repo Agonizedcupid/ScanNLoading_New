@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.aariyan.scannloading.Activity.HeaderNLineActivity;
 import com.aariyan.scannloading.Activity.Home;
+import com.aariyan.scannloading.Constant.Constant;
 import com.aariyan.scannloading.Database.DatabaseAdapter;
 import com.aariyan.scannloading.Model.HeadersModel;
 import com.aariyan.scannloading.Model.LinesModel;
@@ -54,7 +55,7 @@ public class HeaderLinesAdapter extends RecyclerView.Adapter<HeaderLinesAdapter.
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                Home.position = position;
+                Constant.position = position;
                 Intent intent = new Intent(context, HeaderNLineActivity.class);
                 intent.putExtra("orderId", model.getOrderId());
                 intent.putExtra("storeName", model.getStoreName());
@@ -76,7 +77,7 @@ public class HeaderLinesAdapter extends RecyclerView.Adapter<HeaderLinesAdapter.
         //Red
         int countTwo = databaseAdapter.countTwo(model.getOrderId());
 
-        Log.d("FLAG_TESTING", ""+countZero+","+countOne+","+countTwo);
+        Log.d("FLAG_TESTING", "" + countZero + "," + countOne + "," + countTwo);
 
         if (countOne == list.size()) {
             holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.holo_green_dark));
@@ -88,7 +89,6 @@ public class HeaderLinesAdapter extends RecyclerView.Adapter<HeaderLinesAdapter.
         } else if (countZero > 0 && countOne > 0) {
             holder.itemView.setBackgroundColor(context.getResources().getColor(R.color.yellow));
         }
-
 
 
 //        new Handler().post(new Runnable() {

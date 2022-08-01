@@ -21,6 +21,7 @@ public class Constant {
 
     public static String[] types = {"UPDATE"};
     public static int[] flag = {0, 1, 2};
+    public static int position = 0;
     /*
     0 == Black zone
     1 == Green Zone

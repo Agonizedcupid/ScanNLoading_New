@@ -118,6 +118,24 @@ public class DatabaseAdapter {
         return id;
     }
 
+    public List<QueueModel> getQueue() {
+        List<QueueModel> list = new ArrayList<>();
+        SQLiteDatabase database = helper.getWritableDatabase();
+
+        String[] columns = {DatabaseHelper.UID, DatabaseHelper.Type, DatabaseHelper.Instructions};
+
+        Cursor cursor = database.query(DatabaseHelper.QUEUE_TABLE_NAME, columns, null, null, null, null, null);
+        while (cursor.moveToNext()) {
+            QueueModel model = new QueueModel(
+                    cursor.getInt(0),
+                    cursor.getString(1),
+                    cursor.getString(2)
+            );
+            list.add(model);
+        }
+        return list;
+    }
+
 
     //get HEADER by User Name , date, route Name, order types, user id
     public List<HeadersModel> getHeaderByDateRouteNameOrderTypes(String date, int routeName, int orderTypes, int userId) {
@@ -258,7 +276,7 @@ public class DatabaseAdapter {
     }
 
     //Update Quantity of lines table, as well as changing the flag value using orderId & orderDetailsId:
-    public long updateLinesQuantity(int orderId, int orderDetailsId, int userId, int quantity, int flag) {
+    public long updateLinesQuantity(int orderId, int orderDetailsId, int userId, int quantity, int flag, int loaded) {
         SQLiteDatabase database = helper.getWritableDatabase();
         String selection = DatabaseHelper.OrderIds + " LIKE ? AND " + DatabaseHelper.OrderDetailId + " LIKE ? ";
         String[] args = {"" + orderId, "" + orderDetailsId};
@@ -266,6 +284,7 @@ public class DatabaseAdapter {
         ContentValues contentValues = new ContentValues();
         contentValues.put(DatabaseHelper.Qty, quantity);
         contentValues.put(DatabaseHelper.FLAG, flag);
+        contentValues.put(DatabaseHelper.Loadeds, loaded);
 
         long ids = database.update(DatabaseHelper.LINES_TABLE_NAME, contentValues, selection, args);
 
@@ -388,6 +407,17 @@ public class DatabaseAdapter {
 //        return ids;
 //    }
 
+    public long deleteQueue(int id) {
+        SQLiteDatabase database = helper.getWritableDatabase();
+        //select * from table_name where id = id
+        String selection = DatabaseHelper.UID + " LIKE ?";
+
+        String[] args = {"" + id};
+        long ids = database.delete(DatabaseHelper.QUEUE_TABLE_NAME, selection, args);
+
+        return ids;
+    }
+
     /**
      * Drop Header table
      */
@@ -397,6 +427,13 @@ public class DatabaseAdapter {
         database.execSQL(DatabaseHelper.DROP_HEADERS_TABLE);
         database.execSQL(DatabaseHelper.CREATE_HEADERS_TABLE);
     }
+
+    public void dropQueueTable() {
+        SQLiteDatabase database = helper.getWritableDatabase();
+        database.execSQL(DatabaseHelper.DROP_QUEUE_TABLE);
+        database.execSQL(DatabaseHelper.CREATE_QUEUE_TABLE);
+    }
+
     public void dropLinesTable() {
         SQLiteDatabase database = helper.getWritableDatabase();
         database.execSQL(DatabaseHelper.DROP_LINES_TABLE);
@@ -407,7 +444,7 @@ public class DatabaseAdapter {
         private Context context;
 
         private static final String DATABASE_NAME = "scan_N_loading.db";
-        private static final int VERSION_NUMBER = 4;
+        private static final int VERSION_NUMBER = 6;
 
         //Header Table:
         private static final String HEADERS_TABLE_NAME = "headers";

@@ -2,6 +2,7 @@ package com.aariyan.scannloading.Activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -25,8 +26,10 @@ import com.aariyan.scannloading.Interface.QuantityUpdater;
 import com.aariyan.scannloading.Interface.SingleClickUpdate;
 import com.aariyan.scannloading.Model.LinesModel;
 import com.aariyan.scannloading.Model.PostLinesModel;
+import com.aariyan.scannloading.Model.QueueModel;
 import com.aariyan.scannloading.Network.Filtering;
 import com.aariyan.scannloading.R;
+import com.aariyan.scannloading.Service.PostLinesService;
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -104,6 +107,18 @@ public class HeaderNLineActivity extends AppCompatActivity implements QuantityUp
         }
 
         initUI();
+    }
+
+    @Override
+    protected void onResume() {
+        if (Constant.isInternetConnected(this)) {
+            if (!PostLinesService.isServiceRunning) {
+                ContextCompat.startForegroundService(this, new Intent(this, PostLinesService.class));
+            }
+        } else {
+            Toast.makeText(this, "No Internet Connection!", Toast.LENGTH_SHORT).show();
+        }
+        super.onResume();
     }
 
     private void initUI() {
@@ -202,8 +217,16 @@ public class HeaderNLineActivity extends AppCompatActivity implements QuantityUp
                 } else if (Integer.parseInt(quantityUpdate.getText().toString()) < model.getQty()) {
                     flag = 2;
                 }
-                long ids = databaseAdapter.updateLinesQuantity(orderId, model.getOrderDetailId(),
-                        userId, Integer.parseInt(quantityUpdate.getText().toString()), flag);
+                long ids = 0;
+
+                if (model.getLoaded() == 0) {
+                    ids = databaseAdapter.updateLinesQuantity(orderId, model.getOrderDetailId(),
+                            userId, Integer.parseInt(quantityUpdate.getText().toString()), 1, 1);
+                } else {
+                    ids = databaseAdapter.updateLinesQuantity(orderId, model.getOrderDetailId(),
+                            userId, Integer.parseInt(quantityUpdate.getText().toString()), 0, 0);
+                }
+
                 if (ids < 0) {
                     Toast.makeText(HeaderNLineActivity.this, "Unable to update Lines Table!", Toast.LENGTH_SHORT).show();
                 }
@@ -211,29 +234,38 @@ public class HeaderNLineActivity extends AppCompatActivity implements QuantityUp
                 //then insert data into Queue table to sync on server:
                 StringBuilder builder = new StringBuilder();
                 builder.append(orderId).append("|").append(model.getOrderDetailId()).append("|")
-                        .append(userId).append("|").append(model.getLoaded()).append("|").append(quantityUpdate.getText().toString())
+                        .append(userId).append("|").append(1).append("|").append(quantityUpdate.getText().toString())
                         .append("|").append(Constant.getDate()).append("|").append("0.0");
 
-                if (!Constant.isInternetConnected(HeaderNLineActivity.this)) {
-                    //As there has no connection, we are saving data locally
-                    Snackbar.make(snackBarLayout, "No Stable Internet Connection!", Snackbar.LENGTH_SHORT).show();
-                    long checkInsert = databaseAdapter.insertQueue(Constant.types[0], builder.toString());
-                    Log.d(TAG, "" + builder);
-                    if (checkInsert > 0) {
-                        Snackbar.make(snackBarLayout, "Data stored locally!", Snackbar.LENGTH_SHORT).show();
-                        loadLinesFromSQLite();
-                    } else {
-                        Snackbar.make(snackBarLayout, "Unable to store data!", Snackbar.LENGTH_SHORT).show();
-                    }
-                } else {
-                    //If there has a connection then upload directly to the server:
-                    Snackbar.make(snackBarLayout, "You have stable internet connection!", Snackbar.LENGTH_SHORT).show();
-                    postLinesList.add(new PostLinesModel(new Random().nextInt(), "UPDATE", builder.toString()));
-                    postLinesData(postLinesList);
-                    //So upload to the server directly
+                long checkInsert = databaseAdapter.insertQueue(Constant.types[0], builder.toString());
+                Log.d(TAG, "" + builder);
+                if (checkInsert > 0) {
+                    Snackbar.make(snackBarLayout, "Data stored locally!", Snackbar.LENGTH_SHORT).show();
                     loadLinesFromSQLite();
-                    Snackbar.make(snackBarLayout, "Posted to the server directly!", Snackbar.LENGTH_SHORT).show();
+                } else {
+                    Snackbar.make(snackBarLayout, "Unable to store data!", Snackbar.LENGTH_SHORT).show();
                 }
+
+//                if (!Constant.isInternetConnected(HeaderNLineActivity.this)) {
+//                    //As there has no connection, we are saving data locally
+//                    Snackbar.make(snackBarLayout, "No Stable Internet Connection!", Snackbar.LENGTH_SHORT).show();
+//                    long checkInsert = databaseAdapter.insertQueue(Constant.types[0], builder.toString());
+//                    Log.d(TAG, "" + builder);
+//                    if (checkInsert > 0) {
+//                        Snackbar.make(snackBarLayout, "Data stored locally!", Snackbar.LENGTH_SHORT).show();
+//                        loadLinesFromSQLite();
+//                    } else {
+//                        Snackbar.make(snackBarLayout, "Unable to store data!", Snackbar.LENGTH_SHORT).show();
+//                    }
+//                } else {
+//                    //If there has a connection then upload directly to the server:
+//                    Snackbar.make(snackBarLayout, "You have stable internet connection!", Snackbar.LENGTH_SHORT).show();
+//                    postLinesList.add(new PostLinesModel(new Random().nextInt(), "UPDATE", builder.toString()));
+//                    postLinesData(postLinesList);
+//                    //So upload to the server directly
+//                    loadLinesFromSQLite();
+//                    Snackbar.make(snackBarLayout, "Posted to the server directly!", Snackbar.LENGTH_SHORT).show();
+//                }
                 behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
             }
         });
@@ -244,7 +276,7 @@ public class HeaderNLineActivity extends AppCompatActivity implements QuantityUp
         linesList.clear();
 
         //Retrieving data from SQLite database
-        linesList = databaseAdapter.getLinesByDateRouteNameOrderTypes(orderId);
+        //linesList = databaseAdapter.getLinesByDateRouteNameOrderTypes(orderId);
         //filtering = new Filtering(HeaderNLineActivity.this);
         //linesList.clear();
 
@@ -260,6 +292,9 @@ public class HeaderNLineActivity extends AppCompatActivity implements QuantityUp
         //Retrieving data from SQLite database
         // linesList.clear();
         linesList = databaseAdapter.getLinesByDateRouteNameOrderTypes(orderId);
+        for (int i = 0; i < linesList.size(); i++) {
+            Log.d("CHECK_LINE", "handleData: " + linesList.get(i).getFlag());
+        }
         linesList = filtering.getFlagData(linesList, flag);
         adapter = new HeaderNLineAdapter(this, linesList, this, this);
         //HeaderNLineAdapter adapter = new HeaderNLineAdapter(this, linesList, this);
@@ -322,21 +357,20 @@ public class HeaderNLineActivity extends AppCompatActivity implements QuantityUp
                 } else if (Integer.parseInt(quantityUpdate.getText().toString()) < quantity) {
                     flag = 2;
                 }
-                long ids = databaseAdapter.updateLinesQuantity(orderId, orderDetailsId,
-                        userId, Integer.parseInt(quantityUpdate.getText().toString()), flag);
-                if (ids < 0) {
-                    Toast.makeText(HeaderNLineActivity.this, "Unable to update Lines Table!", Toast.LENGTH_SHORT).show();
-                }
+//                long ids = databaseAdapter.updateLinesQuantity(orderId, orderDetailsId,
+//                        userId, Integer.parseInt(quantityUpdate.getText().toString()), flag);
 
-                //then insert data into Queue table to sync on server:
-                StringBuilder builder = new StringBuilder();
-                builder.append(orderId).append("|").append(orderDetailsId).append("|")
-                        .append(userId).append("|").append(loaded).append("|").append(quantityUpdate.getText().toString())
-                        .append("|").append(Constant.getDate()).append("|").append("0.0");
+                long ids = 0;
 
-                if (!Constant.isInternetConnected(HeaderNLineActivity.this)) {
-                    //As there has no connection, we are saving data locally
-                    Snackbar.make(snackBarLayout, "No Stable Internet Connection!", Snackbar.LENGTH_SHORT).show();
+                if (loaded == 0) {
+                    ids = databaseAdapter.updateLinesQuantity(orderId, orderDetailsId,
+                            userId, Integer.parseInt(quantityUpdate.getText().toString()), 1, 1);
+
+                    StringBuilder builder = new StringBuilder();
+                    builder.append(orderId).append("|").append(orderDetailsId).append("|")
+                            .append(userId).append("|").append(1).append("|").append(quantityUpdate.getText().toString())
+                            .append("|").append(Constant.getDate()).append("|").append("0.0");
+
                     long checkInsert = databaseAdapter.insertQueue(Constant.types[0], builder.toString());
                     Log.d(TAG, "" + builder);
                     if (checkInsert > 0) {
@@ -345,15 +379,57 @@ public class HeaderNLineActivity extends AppCompatActivity implements QuantityUp
                     } else {
                         Snackbar.make(snackBarLayout, "Unable to store data!", Snackbar.LENGTH_SHORT).show();
                     }
+
                 } else {
-                    //If there has a connection then upload directly to the server:
-                    Snackbar.make(snackBarLayout, "You have stable internet connection!", Snackbar.LENGTH_SHORT).show();
-                    postLinesList.add(new PostLinesModel(new Random().nextInt(), "UPDATE", builder.toString()));
-                    postLinesData(postLinesList);
-                    //So upload to the server directly
+                    ids = databaseAdapter.updateLinesQuantity(orderId, orderDetailsId,
+                            userId, Integer.parseInt(quantityUpdate.getText().toString()), 0, 0);
+                    //then insert data into Queue table to sync on server:
+                    StringBuilder builder = new StringBuilder();
+                    builder.append(orderId).append("|").append(orderDetailsId).append("|")
+                            .append(userId).append("|").append(0).append("|").append(quantityUpdate.getText().toString())
+                            .append("|").append(Constant.getDate()).append("|").append("0.0");
+                    postBack(builder.toString());
                     loadLinesFromSQLite();
-                    Snackbar.make(snackBarLayout, "Posted to the server directly!", Snackbar.LENGTH_SHORT).show();
                 }
+                if (ids < 0) {
+                    Toast.makeText(HeaderNLineActivity.this, "Unable to update Lines Table!", Toast.LENGTH_SHORT).show();
+                }
+
+                //then insert data into Queue table to sync on server:
+//                StringBuilder builder = new StringBuilder();
+//                builder.append(orderId).append("|").append(orderDetailsId).append("|")
+//                        .append(userId).append("|").append(1).append("|").append(quantityUpdate.getText().toString())
+//                        .append("|").append(Constant.getDate()).append("|").append("0.0");
+//
+//                long checkInsert = databaseAdapter.insertQueue(Constant.types[0], builder.toString());
+//                Log.d(TAG, "" + builder);
+//                if (checkInsert > 0) {
+//                    Snackbar.make(snackBarLayout, "Data stored locally!", Snackbar.LENGTH_SHORT).show();
+//                    loadLinesFromSQLite();
+//                } else {
+//                    Snackbar.make(snackBarLayout, "Unable to store data!", Snackbar.LENGTH_SHORT).show();
+//                }
+
+//                if (!Constant.isInternetConnected(HeaderNLineActivity.this)) {
+//                    //As there has no connection, we are saving data locally
+//                    Snackbar.make(snackBarLayout, "No Stable Internet Connection!", Snackbar.LENGTH_SHORT).show();
+//                    long checkInsert = databaseAdapter.insertQueue(Constant.types[0], builder.toString());
+//                    Log.d(TAG, "" + builder);
+//                    if (checkInsert > 0) {
+//                        Snackbar.make(snackBarLayout, "Data stored locally!", Snackbar.LENGTH_SHORT).show();
+//                        loadLinesFromSQLite();
+//                    } else {
+//                        Snackbar.make(snackBarLayout, "Unable to store data!", Snackbar.LENGTH_SHORT).show();
+//                    }
+//                } else {
+//                    //If there has a connection then upload directly to the server:
+//                    Snackbar.make(snackBarLayout, "You have stable internet connection!", Snackbar.LENGTH_SHORT).show();
+//                    postLinesList.add(new PostLinesModel(new Random().nextInt(), "UPDATE", builder.toString()));
+//                    postLinesData(postLinesList);
+//                    //So upload to the server directly
+//                    loadLinesFromSQLite();
+//                    Snackbar.make(snackBarLayout, "Posted to the server directly!", Snackbar.LENGTH_SHORT).show();
+//                }
                 behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
 
             }
@@ -362,62 +438,61 @@ public class HeaderNLineActivity extends AppCompatActivity implements QuantityUp
 
     }
 
-    private void postLinesData(List<PostLinesModel> getStock) {
-        SharedPreferences sharedPreferences = new SharedPreferences(HeaderNLineActivity.this);
+    private void postBack(String instructions) {
 
+        List<QueueModel> getStock = new ArrayList<>();
+        getStock.add(new QueueModel(777,"UPDATE", instructions));
+
+        SharedPreferences sharedPreferences = new SharedPreferences(HeaderNLineActivity.this);
         String appendedUrl = sharedPreferences.getURL(Constant.IP_MODE_KEY, Constant.IP_URL);
-        if (getStock.size() > 0) {
+        String URL = appendedUrl + "PostQueueStaging.php";
+
             StringRequest mStringRequest = new StringRequest(
                     Request.Method.POST,
                     appendedUrl + "PostQueueStaging.php",
                     new Response.Listener<String>() {
                         @Override
                         public void onResponse(String response) {
+
+                            getStock.clear();
                             Log.d("FEEDBACK", response);
                             Toast.makeText(HeaderNLineActivity.this, response.toString() + " Posted successfully!", Toast.LENGTH_SHORT).show();
                             //Now Removing the data from SQLite:
                             //deleteUploadedJobs();
-                            postLinesList.clear();
+                            //new DatabaseAdapter(PostLinesService.this).dropQueueTable();
+
                         }
                     }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     Toast.makeText(HeaderNLineActivity.this, "" + error.getMessage(), Toast.LENGTH_SHORT).show();
-                    Log.d("FEEDBACK", ""+error.getMessage());
+                    Log.d("FEEDBACK", "" + error.getMessage());
                 }
             }
             ) {
                 @Override
                 public byte[] getBody() throws AuthFailureError {
                     String jsonString = new Gson().toJson(getStock).toString();
+                    Log.d("FEEDBACK", jsonString);
                     return jsonString.getBytes();
                 }
             };
             Volley.newRequestQueue(HeaderNLineActivity.this).add(mStringRequest);
-        } else {
-            Toast.makeText(HeaderNLineActivity.this, "Not enough data!", Toast.LENGTH_SHORT).show();
-
-        }
     }
 
     @Override
     public void onSingleClick(int orderId, int orderDetailsId, int userId, int loaded, int quantity, String date, String type, double price, String itemName) {
+        long ids = 0;
         int flag = 1;
-        long ids = databaseAdapter.updateLinesQuantity(orderId, orderDetailsId,
-                userId, quantity, flag);
-        if (ids < 0) {
-            Toast.makeText(HeaderNLineActivity.this, "Unable to update Lines Table!", Toast.LENGTH_SHORT).show();
-        }
+        if (loaded == 0) {
+            ids = databaseAdapter.updateLinesQuantity(orderId, orderDetailsId,
+                    userId, quantity, 1, 1);
 
-        //then insert data into Queue table to sync on server:
-        StringBuilder builder = new StringBuilder();
-        builder.append(orderId).append("|").append(orderDetailsId).append("|")
-                .append(userId).append("|").append(loaded).append("|").append(quantityUpdate.getText().toString())
-                .append("|").append(Constant.getDate()).append("|").append("0.0");
+            StringBuilder builder = new StringBuilder();
+            builder.append(orderId).append("|").append(orderDetailsId).append("|")
+                    .append(userId).append("|").append(1).append("|").append(quantity)
+                    .append("|").append(Constant.getDate()).append("|").append("0.0");
 
-        if (!Constant.isInternetConnected(HeaderNLineActivity.this)) {
-            //As there has no connection, we are saving data locally
-            Snackbar.make(snackBarLayout, "No Stable Internet Connection!", Snackbar.LENGTH_SHORT).show();
             long checkInsert = databaseAdapter.insertQueue(Constant.types[0], builder.toString());
             Log.d(TAG, "" + builder);
             if (checkInsert > 0) {
@@ -427,13 +502,57 @@ public class HeaderNLineActivity extends AppCompatActivity implements QuantityUp
                 Snackbar.make(snackBarLayout, "Unable to store data!", Snackbar.LENGTH_SHORT).show();
             }
         } else {
-            //If there has a connection then upload directly to the server:
-            Snackbar.make(snackBarLayout, "You have stable internet connection!", Snackbar.LENGTH_SHORT).show();
-            //So upload to the server directly
-            postLinesList.add(new PostLinesModel(new Random().nextInt(),"UPDATE", builder.toString()));
-            postLinesData(postLinesList);
+            ids = databaseAdapter.updateLinesQuantity(orderId, orderDetailsId,
+                    userId, quantity, 0, 0);
+
+            StringBuilder builder = new StringBuilder();
+            builder.append(orderId).append("|").append(orderDetailsId).append("|")
+                    .append(userId).append("|").append(0).append("|").append(quantity)
+                    .append("|").append(Constant.getDate()).append("|").append("0.0");
+
+            postBack(builder.toString());
             loadLinesFromSQLite();
-            Snackbar.make(snackBarLayout, "Posted to the server directly!", Snackbar.LENGTH_SHORT).show();
         }
+
+
+        if (ids < 0) {
+            Toast.makeText(HeaderNLineActivity.this, "Unable to update Lines Table!", Toast.LENGTH_SHORT).show();
+        }
+
+        //then insert data into Queue table to sync on server:
+//        StringBuilder builder = new StringBuilder();
+//        builder.append(orderId).append("|").append(orderDetailsId).append("|")
+//                .append(userId).append("|").append(1).append("|").append(quantity)
+//                .append("|").append(Constant.getDate()).append("|").append("0.0");
+//
+//        long checkInsert = databaseAdapter.insertQueue(Constant.types[0], builder.toString());
+//        Log.d(TAG, "" + builder);
+//        if (checkInsert > 0) {
+//            Snackbar.make(snackBarLayout, "Data stored locally!", Snackbar.LENGTH_SHORT).show();
+//            loadLinesFromSQLite();
+//        } else {
+//            Snackbar.make(snackBarLayout, "Unable to store data!", Snackbar.LENGTH_SHORT).show();
+//        }
+
+//        if (!Constant.isInternetConnected(HeaderNLineActivity.this)) {
+//            //As there has no connection, we are saving data locally
+//            Snackbar.make(snackBarLayout, "No Stable Internet Connection!", Snackbar.LENGTH_SHORT).show();
+//            long checkInsert = databaseAdapter.insertQueue(Constant.types[0], builder.toString());
+//            Log.d(TAG, "" + builder);
+//            if (checkInsert > 0) {
+//                Snackbar.make(snackBarLayout, "Data stored locally!", Snackbar.LENGTH_SHORT).show();
+//                loadLinesFromSQLite();
+//            } else {
+//                Snackbar.make(snackBarLayout, "Unable to store data!", Snackbar.LENGTH_SHORT).show();
+//            }
+//        } else {
+//            //If there has a connection then upload directly to the server:
+//            Snackbar.make(snackBarLayout, "You have stable internet connection!", Snackbar.LENGTH_SHORT).show();
+//            //So upload to the server directly
+//            postLinesList.add(new PostLinesModel(new Random().nextInt(),"UPDATE", builder.toString()));
+//            postLinesData(postLinesList);
+//            loadLinesFromSQLite();
+//            Snackbar.make(snackBarLayout, "Posted to the server directly!", Snackbar.LENGTH_SHORT).show();
+//        }
     }
 }

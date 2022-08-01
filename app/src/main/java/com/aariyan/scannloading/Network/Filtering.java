@@ -24,7 +24,8 @@ public class Filtering {
 
     public List<LinesModel> getFlagData(List<LinesModel> models, int flag) {
         List<LinesModel> l = new ArrayList<>();
-        Observable observable = Observable.fromIterable(models).filter(model -> model.getFlag() == flag);
+        //Observable observable = Observable.fromIterable(models).filter(model -> model.getFlag() == flag);
+        Observable observable = Observable.fromIterable(models).filter(model -> model.getLoaded() == flag);
         Observer observer = new Observer() {
             @Override
             public void onSubscribe(@NonNull Disposable d) {
