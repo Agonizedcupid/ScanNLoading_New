@@ -90,7 +90,7 @@ public class PostLinesService extends Service {
         showNotification();
         //Running some background thread for Asynchronous task:
         triggerTheMonitor();
-        Toast.makeText(getApplicationContext(), "Service Started!!", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getApplicationContext(), "Service Started!!", Toast.LENGTH_SHORT).show();
         //return super.onStartCommand(intent, flags, startId);
         return START_STICKY;
     }
@@ -255,6 +255,8 @@ public class PostLinesService extends Service {
 
                                 toBePostedData.clear();
                                 Log.d("FEEDBACK", response);
+
+
                                 Toast.makeText(PostLinesService.this, response.toString() + " Posted successfully!", Toast.LENGTH_SHORT).show();
                                 //Now Removing the data from SQLite:
                                 //deleteUploadedJobs();

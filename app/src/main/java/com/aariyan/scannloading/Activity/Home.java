@@ -322,13 +322,13 @@ public class Home extends AppCompatActivity {
 
     private void loadingResumeData() {
         if (headerLinesList.size() > 0) {
-            Toast.makeText(this, "Ache", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "Ache", Toast.LENGTH_SHORT).show();
             recyclerView.setVisibility(View.VISIBLE);
             warningMessage.setVisibility(View.GONE);
             adapter = new HeaderLinesAdapter(Home.this, headerLinesList);
             recyclerView.setAdapter(adapter);
             adapter.notifyDataSetChanged();
-            Snackbar.make(snackBarLayout, "Data is showing from local storage.", Snackbar.LENGTH_LONG).show();
+            //Snackbar.make(snackBarLayout, "Data is showing from local storage.", Snackbar.LENGTH_LONG).show();
         } else {
 
         }
@@ -525,7 +525,7 @@ public class Home extends AppCompatActivity {
                                 date, selectedRoute, selectedOrder, userId);
 
                         if (id > 0) {
-                            Snackbar.make(snackBarLayout, "Data also saved on local database", Snackbar.LENGTH_SHORT).show();
+                            //Snackbar.make(snackBarLayout, "Data also saved on local database", Snackbar.LENGTH_SHORT).show();
 
                         }
                     }
@@ -538,7 +538,7 @@ public class Home extends AppCompatActivity {
                 recyclerView.scrollToPosition(position);
                 adapter.notifyDataSetChanged();
 
-                Toast.makeText(this, "Position: "+position, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, "Position: "+position, Toast.LENGTH_SHORT).show();
                 progressBar.setVisibility(View.GONE);
 
             } else {
@@ -588,7 +588,7 @@ public class Home extends AppCompatActivity {
                                 date, selectedRoute, selectedOrder, userId);
                         Log.d("CHECKING_SIZE", "parseOrdernOrderJson: " + id + " - " + Lines.length());
                         if (id > 0) {
-                            Snackbar.make(snackBarLayout, "Data also saved on local database", Snackbar.LENGTH_SHORT).show();
+                            //Snackbar.make(snackBarLayout, "Data also saved on local database", Snackbar.LENGTH_SHORT).show();
                         }
                     }
                 }
@@ -604,7 +604,7 @@ public class Home extends AppCompatActivity {
 
         } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(Home.this, "" + e.getMessage(), Toast.LENGTH_SHORT).show();
+            //Toast.makeText(Home.this, "" + e.getMessage(), Toast.LENGTH_SHORT).show();
             progressBar.setVisibility(View.GONE);
             warningMessage.setVisibility(View.VISIBLE);
             warningMessage.setText("" + e.getMessage());

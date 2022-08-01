@@ -240,10 +240,10 @@ public class HeaderNLineActivity extends AppCompatActivity implements QuantityUp
                 long checkInsert = databaseAdapter.insertQueue(Constant.types[0], builder.toString());
                 Log.d(TAG, "" + builder);
                 if (checkInsert > 0) {
-                    Snackbar.make(snackBarLayout, "Data stored locally!", Snackbar.LENGTH_SHORT).show();
+                    //Snackbar.make(snackBarLayout, "Data stored locally!", Snackbar.LENGTH_SHORT).show();
                     loadLinesFromSQLite();
                 } else {
-                    Snackbar.make(snackBarLayout, "Unable to store data!", Snackbar.LENGTH_SHORT).show();
+                    //Snackbar.make(snackBarLayout, "Unable to store data!", Snackbar.LENGTH_SHORT).show();
                 }
 
 //                if (!Constant.isInternetConnected(HeaderNLineActivity.this)) {
@@ -374,10 +374,10 @@ public class HeaderNLineActivity extends AppCompatActivity implements QuantityUp
                     long checkInsert = databaseAdapter.insertQueue(Constant.types[0], builder.toString());
                     Log.d(TAG, "" + builder);
                     if (checkInsert > 0) {
-                        Snackbar.make(snackBarLayout, "Data stored locally!", Snackbar.LENGTH_SHORT).show();
+                        //Snackbar.make(snackBarLayout, "Data stored locally!", Snackbar.LENGTH_SHORT).show();
                         loadLinesFromSQLite();
                     } else {
-                        Snackbar.make(snackBarLayout, "Unable to store data!", Snackbar.LENGTH_SHORT).show();
+                        //Snackbar.make(snackBarLayout, "Unable to store data!", Snackbar.LENGTH_SHORT).show();
                     }
 
                 } else {
@@ -496,10 +496,10 @@ public class HeaderNLineActivity extends AppCompatActivity implements QuantityUp
             long checkInsert = databaseAdapter.insertQueue(Constant.types[0], builder.toString());
             Log.d(TAG, "" + builder);
             if (checkInsert > 0) {
-                Snackbar.make(snackBarLayout, "Data stored locally!", Snackbar.LENGTH_SHORT).show();
+                //Snackbar.make(snackBarLayout, "Data stored locally!", Snackbar.LENGTH_SHORT).show();
                 loadLinesFromSQLite();
             } else {
-                Snackbar.make(snackBarLayout, "Unable to store data!", Snackbar.LENGTH_SHORT).show();
+               // Snackbar.make(snackBarLayout, "Unable to store data!", Snackbar.LENGTH_SHORT).show();
             }
         } else {
             ids = databaseAdapter.updateLinesQuantity(orderId, orderDetailsId,

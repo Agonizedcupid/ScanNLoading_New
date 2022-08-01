@@ -77,18 +77,26 @@ public class HeaderLinesAdapter extends RecyclerView.Adapter<HeaderLinesAdapter.
         //Red
         int countTwo = databaseAdapter.countTwo(model.getOrderId());
 
-        Log.d("FLAG_TESTING", "" + countZero + "," + countOne + "," + countTwo);
+        Log.d("FLAG_TESTING", list.size()+"-" + countZero + "," + countOne + "," + countTwo);
 
-        if (countOne == list.size()) {
+        List<LinesModel> listOfLines = databaseAdapter.getLinesByDateRouteNameOrderTypes(model.getOrderId());
+
+        if (countOne == listOfLines.size()) {
             holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.holo_green_dark));
         }
-        if (countTwo > 0) {
-            holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.holo_red_dark));
-        } else if (countOne == 0) {
-            holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.white));
-        } else if (countZero > 0 && countOne > 0) {
+//        else if (countOne == 0) {
+//            holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.white));
+//        }
+        else if (countZero > 0 && countOne > 0) {
             holder.itemView.setBackgroundColor(context.getResources().getColor(R.color.yellow));
         }
+//        if (countTwo > 0) {
+//            holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.holo_red_dark));
+//        } else if (countOne == 0) {
+//            holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.white));
+//        } else if (countZero > 0 && countOne > 0) {
+//            holder.itemView.setBackgroundColor(context.getResources().getColor(R.color.yellow));
+//        }
 
 
 //        new Handler().post(new Runnable() {

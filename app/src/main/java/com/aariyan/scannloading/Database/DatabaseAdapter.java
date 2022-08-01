@@ -247,7 +247,8 @@ public class DatabaseAdapter {
 
     public int countZero(int orderId) {
         SQLiteDatabase db = helper.getWritableDatabase();
-        Cursor count = db.rawQuery("SELECT COUNT(\"FLAG\") from lines WHERE \"FLAG\" =0 AND \"OrderId\" = " + orderId, null);
+        //Cursor count = db.rawQuery("SELECT COUNT(\"FLAG\") from lines WHERE \"FLAG\" =0 AND \"OrderId\" = " + orderId, null);
+        Cursor count = db.rawQuery("SELECT COUNT(\"Loaded\") from lines WHERE \"Loaded\" =0 AND \"OrderId\" = " + orderId, null);
 
         int intSignedCount = 0;
         count.moveToFirst();
@@ -257,7 +258,7 @@ public class DatabaseAdapter {
 
     public int countOne(int orderId) {
         SQLiteDatabase db = helper.getWritableDatabase();
-        Cursor count = db.rawQuery("SELECT COUNT(\"FLAG\") from lines WHERE \"FLAG\" =1 AND \"OrderId\" = " + orderId, null);
+        Cursor count = db.rawQuery("SELECT COUNT(\"Loaded\") from lines WHERE \"Loaded\" =1 AND \"OrderId\" = " + orderId, null);
 
         int intSignedCount = 0;
         count.moveToFirst();
@@ -267,7 +268,7 @@ public class DatabaseAdapter {
 
     public int countTwo(int orderId) {
         SQLiteDatabase db = helper.getWritableDatabase();
-        Cursor count = db.rawQuery("SELECT COUNT(\"FLAG\") from lines WHERE \"FLAG\" =2 AND \"OrderId\" = " + orderId, null);
+        Cursor count = db.rawQuery("SELECT COUNT(\"Loaded\") from lines WHERE \"Loaded\" =2 AND \"OrderId\" = " + orderId, null);
 
         int intSignedCount = 0;
         count.moveToFirst();
