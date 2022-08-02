@@ -257,7 +257,7 @@ public class PostLinesService extends Service {
                                 Log.d("FEEDBACK", response);
 
 
-                                Toast.makeText(PostLinesService.this, response.toString() + " Posted successfully!", Toast.LENGTH_SHORT).show();
+                                //Toast.makeText(PostLinesService.this, response.toString() + " Posted successfully!", Toast.LENGTH_SHORT).show();
                                 //Now Removing the data from SQLite:
                                 //deleteUploadedJobs();
                                 //new DatabaseAdapter(PostLinesService.this).dropQueueTable();
@@ -266,7 +266,7 @@ public class PostLinesService extends Service {
                         }, new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(PostLinesService.this, "" + error.getMessage(), Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(PostLinesService.this, "" + error.getMessage(), Toast.LENGTH_SHORT).show();
                         Log.d("FEEDBACK", "" + error.getMessage());
                     }
                 }

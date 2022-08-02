@@ -9,7 +9,9 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -28,9 +30,11 @@ import com.aariyan.scannloading.Adapter.HeaderLinesAdapter;
 import com.aariyan.scannloading.Constant.Constant;
 import com.aariyan.scannloading.Database.DatabaseAdapter;
 import com.aariyan.scannloading.Database.SharedPreferences;
+import com.aariyan.scannloading.MainActivity;
 import com.aariyan.scannloading.Model.HeadersModel;
 import com.aariyan.scannloading.Model.LinesModel;
 import com.aariyan.scannloading.Model.OrderModel;
+import com.aariyan.scannloading.Model.QueueModel;
 import com.aariyan.scannloading.Model.RouteModel;
 import com.aariyan.scannloading.R;
 import com.aariyan.scannloading.Service.PostLinesService;
@@ -351,12 +355,41 @@ public class Home extends AppCompatActivity {
 //            Snackbar.make(snackBarLayout, "Data is showing from API.", Snackbar.LENGTH_LONG).show();
 //        }
         if (!Constant.isInternetConnected(Home.this)) {
-            headerLinesList = databaseAdapter.getHeaderByDateRouteNameOrderTypes(date, selectedRoute, selectedOrder, userId);
-            recyclerView.setVisibility(View.VISIBLE);
-            warningMessage.setVisibility(View.GONE);
-            adapter = new HeaderLinesAdapter(Home.this, headerLinesList);
-            recyclerView.setAdapter(adapter);
-            adapter.notifyDataSetChanged();
+            List<QueueModel> list = databaseAdapter.getQueue();
+            if (list.size() > 0) {
+                AlertDialog alertDialog = new AlertDialog.Builder(Home.this).create();
+                alertDialog.setTitle("Alert");
+                alertDialog.setMessage("You've few data on Queue for posting!");
+                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Continue",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                                headerLinesList = databaseAdapter.getHeaderByDateRouteNameOrderTypes(date, selectedRoute, selectedOrder, userId);
+                                recyclerView.setVisibility(View.VISIBLE);
+                                warningMessage.setVisibility(View.GONE);
+                                adapter = new HeaderLinesAdapter(Home.this, headerLinesList);
+                                recyclerView.setAdapter(adapter);
+                                adapter.notifyDataSetChanged();
+                            }
+                        });
+
+                alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Cancel",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        });
+                alertDialog.show();
+            } else {
+                headerLinesList = databaseAdapter.getHeaderByDateRouteNameOrderTypes(date, selectedRoute, selectedOrder, userId);
+                recyclerView.setVisibility(View.VISIBLE);
+                warningMessage.setVisibility(View.GONE);
+                adapter = new HeaderLinesAdapter(Home.this, headerLinesList);
+                recyclerView.setAdapter(adapter);
+                adapter.notifyDataSetChanged();
+            }
+
+
         } else {
             databaseAdapter.dropLinesTable();
             databaseAdapter.dropHeaderTable();
