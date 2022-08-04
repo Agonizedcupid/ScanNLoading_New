@@ -27,6 +27,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.aariyan.scannloading.Adapter.HeaderLinesAdapter;
+import com.aariyan.scannloading.Adapter.HistoryAdapter;
 import com.aariyan.scannloading.Constant.Constant;
 import com.aariyan.scannloading.Database.DatabaseAdapter;
 import com.aariyan.scannloading.Database.SharedPreferences;
@@ -56,9 +57,9 @@ public class Home extends AppCompatActivity {
     public static String userName = "";
     private int userId = 1;
 
-    private RecyclerView recyclerView;
+    private RecyclerView recyclerView, historyRecyclerView;
 
-    private RadioButton loadingBtn, queueBtn;
+    private RadioButton loadingBtn, queueBtn, historyBtn;
 
     private CardView datePicker;
     private TextView dateText;
@@ -84,7 +85,7 @@ public class Home extends AppCompatActivity {
 
     private ProgressBar progressBar;
 
-    private ConstraintLayout loadingLayout;
+    private ConstraintLayout loadingLayout, historyLayout;
 
     DatabaseAdapter databaseAdapter;
 
@@ -122,6 +123,19 @@ public class Home extends AppCompatActivity {
         initUI();
 
         populateSpinner();
+
+        //loadLines();
+    }
+
+    private void loadLines() {
+        List<LinesModel> listOfHistory = databaseAdapter.getLines();
+        if (listOfHistory.size() < 0) {
+            Toast.makeText(this, "No History Found!", Toast.LENGTH_SHORT).show();
+        } else {
+            HistoryAdapter historyAdapter = new HistoryAdapter(this, listOfHistory);
+            historyRecyclerView.setAdapter(historyAdapter);
+            historyAdapter.notifyDataSetChanged();
+        }
     }
 
     private void populateSpinner() {
@@ -273,9 +287,13 @@ public class Home extends AppCompatActivity {
         warningMessage = findViewById(R.id.warningMessage);
 
         loadingLayout = findViewById(R.id.loadingLayout);
+        historyLayout = findViewById(R.id.historyLayout);
 
         recyclerView = findViewById(R.id.rView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        historyRecyclerView = findViewById(R.id.historyRecyclerView);
+        historyRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         datePicker = findViewById(R.id.dateCardView);
         dateText = findViewById(R.id.dateTextView);
@@ -286,10 +304,10 @@ public class Home extends AppCompatActivity {
         getLoadingBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (date.equals("")) {
-                    Toast.makeText(Home.this, "Please select date!", Toast.LENGTH_SHORT).show();
-                    return;
-                }
+//                if (date.equals("")) {
+//                    Toast.makeText(Home.this, "Please select date!", Toast.LENGTH_SHORT).show();
+//                    return;
+//                }
                 loadingData();
             }
         });
@@ -297,6 +315,12 @@ public class Home extends AppCompatActivity {
 
         loadingBtn = findViewById(R.id.loadingRadioBtn);
         queueBtn = findViewById(R.id.queueRadioBtn);
+        historyBtn = findViewById(R.id.historyRadioBtn);
+        if (loadingBtn.isChecked()) {
+            loadingLayout.setVisibility(View.VISIBLE);
+            historyLayout.setVisibility(View.GONE);
+        }
+
 
         datePicker.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -309,6 +333,7 @@ public class Home extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 loadingLayout.setVisibility(View.VISIBLE);
+                historyLayout.setVisibility(View.GONE);
             }
         });
 
@@ -316,6 +341,15 @@ public class Home extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 loadingLayout.setVisibility(View.GONE);
+            }
+        });
+
+        historyBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                loadLines();
+                loadingLayout.setVisibility(View.GONE);
+                historyLayout.setVisibility(View.VISIBLE);
             }
         });
 
@@ -364,7 +398,8 @@ public class Home extends AppCompatActivity {
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();
-                                headerLinesList = databaseAdapter.getHeaderByDateRouteNameOrderTypes(date, selectedRoute, selectedOrder, userId);
+                                //headerLinesList = databaseAdapter.getHeaderByDateRouteNameOrderTypes(date, selectedRoute, selectedOrder, userId);
+                                headerLinesList = databaseAdapter.getHeaders();
                                 recyclerView.setVisibility(View.VISIBLE);
                                 warningMessage.setVisibility(View.GONE);
                                 adapter = new HeaderLinesAdapter(Home.this, headerLinesList);
@@ -381,7 +416,8 @@ public class Home extends AppCompatActivity {
                         });
                 alertDialog.show();
             } else {
-                headerLinesList = databaseAdapter.getHeaderByDateRouteNameOrderTypes(date, selectedRoute, selectedOrder, userId);
+                //headerLinesList = databaseAdapter.getHeaderByDateRouteNameOrderTypes(date, selectedRoute, selectedOrder, userId);
+                headerLinesList = databaseAdapter.getHeaders();
                 recyclerView.setVisibility(View.VISIBLE);
                 warningMessage.setVisibility(View.GONE);
                 adapter = new HeaderLinesAdapter(Home.this, headerLinesList);
@@ -633,7 +669,7 @@ public class Home extends AppCompatActivity {
                         }
                     }
                 }
-
+                loadLines();
             } else {
                 progressBar.setVisibility(View.GONE);
                 warningMessage.setVisibility(View.VISIBLE);

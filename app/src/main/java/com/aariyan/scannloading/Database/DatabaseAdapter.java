@@ -199,7 +199,7 @@ public class DatabaseAdapter {
     }
 
 
-    //get HEADER by User Name , date, route Name, order types, user id
+    //get Lines by User Name , date, route Name, order types, user id
     public List<LinesModel> getLinesByDateRouteNameOrderTypes(int orderId) {
 
         linesList.clear();
@@ -244,6 +244,92 @@ public class DatabaseAdapter {
         return linesList;
 
     }
+
+    //get HEADER by User Name , date, route Name, order types, user id
+    public List<LinesModel> getLines() {
+
+        linesList.clear();
+        SQLiteDatabase database = helper.getWritableDatabase();
+        String[] columns = {DatabaseHelper.UID, DatabaseHelper.blnPickeds, DatabaseHelper.Loadeds, DatabaseHelper.PastelCode,
+                DatabaseHelper.PastelDescription, DatabaseHelper.ProductId, DatabaseHelper.Qty, DatabaseHelper.QtyOrdered,
+                DatabaseHelper.Price, DatabaseHelper.Comment, DatabaseHelper.UnitSize, DatabaseHelper.strBulkUnit
+                , DatabaseHelper.UnitWeight, DatabaseHelper.OrderIds, DatabaseHelper.OrderDetailId, DatabaseHelper.BarCode, DatabaseHelper.ScannedQty
+                , DatabaseHelper.isRandom, DatabaseHelper.PickingTeam, DatabaseHelper.FLAG};
+
+        Cursor cursor = database.query(DatabaseHelper.LINES_TABLE_NAME, columns, null, null, null, null, null);
+        while (cursor.moveToNext()) {
+            LinesModel model = new LinesModel(
+                    cursor.getInt(1),
+                    cursor.getInt(2),
+                    cursor.getString(3),
+                    cursor.getString(4),
+                    cursor.getInt(5),
+                    cursor.getInt(6),
+                    cursor.getInt(7),
+                    cursor.getDouble(8),
+                    cursor.getString(9),
+                    cursor.getString(10),
+                    cursor.getString(11),
+                    cursor.getInt(12),
+                    cursor.getInt(13),
+                    cursor.getInt(14),
+                    cursor.getString(15),
+                    cursor.getString(16),
+                    cursor.getInt(17),
+                    cursor.getString(18),
+                    cursor.getInt(19)
+            );
+            linesList.add(model);
+        }
+        return linesList;
+
+    }
+
+    public List<HeadersModel> getHeaders() {
+
+        headerList.clear();
+        SQLiteDatabase database = helper.getWritableDatabase();
+        String[] columns = {DatabaseHelper.UID, DatabaseHelper.StoreName, DatabaseHelper.Route, DatabaseHelper.DeliverySequence,
+                DatabaseHelper.Invoiced, DatabaseHelper.InvoiceNo, DatabaseHelper.OrderNo, DatabaseHelper.CustomerPastelCode,
+                DatabaseHelper.CustomerId, DatabaseHelper.MESSAGESINV, DatabaseHelper.UserName, DatabaseHelper.OrderId
+                , DatabaseHelper.strLoadedBy, DatabaseHelper.Loaded, DatabaseHelper.blnPicked, DatabaseHelper.blnPriority, DatabaseHelper.deladdress
+                , DatabaseHelper.Value, DatabaseHelper.OrderDate, DatabaseHelper.condition, DatabaseHelper.strCrateName, DatabaseHelper.DATE
+                , DatabaseHelper.ROUTE_NAME, DatabaseHelper.ORDER_TYPES, DatabaseHelper.userId};
+
+        Cursor cursor = database.query(DatabaseHelper.HEADERS_TABLE_NAME, columns, null, null, null, null, null);
+        while (cursor.moveToNext()) {
+            HeadersModel model = new HeadersModel(
+                    cursor.getString(1),
+                    cursor.getString(2),
+                    cursor.getInt(3),
+                    cursor.getInt(4),
+                    cursor.getString(5),
+                    cursor.getString(6),
+                    cursor.getString(7),
+                    cursor.getInt(8),
+                    cursor.getString(9),
+                    cursor.getString(10),
+                    cursor.getInt(11),
+                    cursor.getString(12),
+                    cursor.getInt(13),
+                    cursor.getInt(14),
+                    cursor.getInt(15),
+                    cursor.getString(16),
+                    cursor.getInt(17),
+                    cursor.getString(18),
+                    cursor.getString(19),
+                    cursor.getString(20),
+                    cursor.getString(21),
+                    cursor.getInt(22),
+                    cursor.getInt(23),
+                    cursor.getInt(24)
+            );
+            headerList.add(model);
+        }
+        return headerList;
+
+    }
+
 
     public int countZero(int orderId) {
         SQLiteDatabase db = helper.getWritableDatabase();
