@@ -11,13 +11,14 @@ public class LinesModel {
     private int isRandom;
     private String PickingTeam;
     private int flag;
+    private int totalItem;
 
     public LinesModel(){}
 
     //Flag Constructor:
 
 
-    public LinesModel(int blnPicked, int loaded, String pastelCode, String pastelDescription, int productId, int qty, int qtyOrdered, double price, String comment, String unitSize, String strBulkUnit, int unitWeight, int orderId, int orderDetailId, String barCode, String scannedQty, int isRandom, String pickingTeam, int flag) {
+    public LinesModel(int blnPicked, int loaded, String pastelCode, String pastelDescription, int productId, int qty, int qtyOrdered, double price, String comment, String unitSize, String strBulkUnit, int unitWeight, int orderId, int orderDetailId, String barCode, String scannedQty, int isRandom, String pickingTeam, int flag,int totalItem) {
         this.blnPicked = blnPicked;
         Loaded = loaded;
         PastelCode = pastelCode;
@@ -37,6 +38,15 @@ public class LinesModel {
         this.isRandom = isRandom;
         PickingTeam = pickingTeam;
         this.flag = flag;
+        this.totalItem = totalItem;
+    }
+
+    public int getTotalItem() {
+        return totalItem;
+    }
+
+    public void setTotalItem(int totalItem) {
+        this.totalItem = totalItem;
     }
 
     public int getFlag() {

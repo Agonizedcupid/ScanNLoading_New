@@ -237,7 +237,7 @@ public class DatabaseAdapter {
                     cursor.getString(16),
                     cursor.getInt(17),
                     cursor.getString(18),
-                    cursor.getInt(19)
+                    cursor.getInt(19),-777
             );
             linesList.add(model);
         }
@@ -254,9 +254,12 @@ public class DatabaseAdapter {
                 DatabaseHelper.PastelDescription, DatabaseHelper.ProductId, DatabaseHelper.Qty, DatabaseHelper.QtyOrdered,
                 DatabaseHelper.Price, DatabaseHelper.Comment, DatabaseHelper.UnitSize, DatabaseHelper.strBulkUnit
                 , DatabaseHelper.UnitWeight, DatabaseHelper.OrderIds, DatabaseHelper.OrderDetailId, DatabaseHelper.BarCode, DatabaseHelper.ScannedQty
-                , DatabaseHelper.isRandom, DatabaseHelper.PickingTeam, DatabaseHelper.FLAG};
+                , DatabaseHelper.isRandom, DatabaseHelper.PickingTeam, DatabaseHelper.FLAG,"SUM("+DatabaseHelper.QtyOrdered+")"};
 
-        Cursor cursor = database.query(DatabaseHelper.LINES_TABLE_NAME, columns, null, null, null, null, null);
+     //   SELECT ProductName, SUM(Price) FROM Products GROUP BY SupplierID;
+
+
+        Cursor cursor = database.query(DatabaseHelper.LINES_TABLE_NAME, columns, null, null, DatabaseHelper.PastelDescription, null, null);
         while (cursor.moveToNext()) {
             LinesModel model = new LinesModel(
                     cursor.getInt(1),
@@ -277,7 +280,8 @@ public class DatabaseAdapter {
                     cursor.getString(16),
                     cursor.getInt(17),
                     cursor.getString(18),
-                    cursor.getInt(19)
+                    cursor.getInt(19),
+                    cursor.getInt(20)
             );
             linesList.add(model);
         }

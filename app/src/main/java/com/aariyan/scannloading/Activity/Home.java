@@ -132,6 +132,9 @@ public class Home extends AppCompatActivity {
         if (listOfHistory.size() < 0) {
             Toast.makeText(this, "No History Found!", Toast.LENGTH_SHORT).show();
         } else {
+            for (int i=0; i<listOfHistory.size();i++) {
+                Log.d("COUNTING", "loadLines: "+listOfHistory.get(i).getTotalItem());
+            }
             HistoryAdapter historyAdapter = new HistoryAdapter(this, listOfHistory);
             historyRecyclerView.setAdapter(historyAdapter);
             historyAdapter.notifyDataSetChanged();
