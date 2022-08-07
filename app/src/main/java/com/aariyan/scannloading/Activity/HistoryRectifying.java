@@ -8,6 +8,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.aariyan.scannloading.Adapter.GreenAdapter;
+import com.aariyan.scannloading.Adapter.RedAdapter;
+import com.aariyan.scannloading.Database.DatabaseAdapter;
 import com.aariyan.scannloading.Interface.LinesRectifying;
 import com.aariyan.scannloading.Model.LinesModel;
 import com.aariyan.scannloading.R;
@@ -22,6 +25,9 @@ public class HistoryRectifying extends AppCompatActivity{
     LinesModel model = LinesHistoryImplemented.getModel();
     List<LinesModel> redList = new ArrayList<>();
     List<LinesModel> greenList = new ArrayList<>();
+    List<LinesModel> linesList = new ArrayList<>();
+
+    DatabaseAdapter adapter = new DatabaseAdapter(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +48,21 @@ public class HistoryRectifying extends AppCompatActivity{
     }
 
     private void loadData() {
+        linesList = adapter.getLinesByName(model.getPastelDescription());
+        for (LinesModel model : linesList) {
+            if (model.getLoaded() == 0) {
+                redList.add(model);
+            } else {
+                greenList.add(model);
+            }
+        }
 
+        RedAdapter redAdapter = new RedAdapter(this, redList);
+        redListView.setAdapter(redAdapter);
+        redAdapter.notifyDataSetChanged();
+
+        GreenAdapter greenAdapter = new GreenAdapter(this, greenList);
+        greenListView.setAdapter(greenAdapter);
+        greenAdapter.notifyDataSetChanged();
     }
 }
