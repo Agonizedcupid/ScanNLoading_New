@@ -63,13 +63,20 @@ public class HistoryRectifying extends AppCompatActivity implements UpdateLines 
         bottomSheet = findViewById(R.id.bottomSheet);
         behavior = BottomSheetBehavior.from(bottomSheet);
 
-        loadData();
+        loadData("pastel");
     }
 
-    private void loadData() {
+    private void loadData(String identifier) {
         linesList.clear();
-        model = LinesHistoryImplemented.getModel();
-        linesList = adapter.getLinesByName(model.getPastelDescription());
+        redList.clear();
+        greenList.clear();
+        if (identifier.equals("pastel")) {
+            model = LinesHistoryImplemented.getModel();
+            linesList = adapter.getLinesByName(model.getPastelDescription());
+        } else {
+            linesList = adapter.getLinesByName(identifier);
+        }
+
         for (LinesModel model : linesList) {
             if (model.getLoaded() == 0) {
                 redList.add(model);
@@ -88,7 +95,7 @@ public class HistoryRectifying extends AppCompatActivity implements UpdateLines 
     }
 
     @Override
-    public void clickForUpdate(LinesModel model, int position, String adapterSelection) {
+    public void clickForUpdate(LinesModel model, int position, String adapterSelection, View shower) {
         int loaded;
         if (adapterSelection.equals("red")) {
             loaded = 1;
@@ -108,15 +115,18 @@ public class HistoryRectifying extends AppCompatActivity implements UpdateLines 
                 if (Constant.PIN_CODE == Integer.parseInt(pinCodeField.getText().toString().trim())) {
                     long id = adapter.updateLinesLoaded(model.getOrderId(), model.getOrderDetailId(), loaded, loaded);
                     if (id > 0) {
-                        loadData();
+                        loadData(model.getPastelDescription());
                         behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                        shower.setVisibility(View.VISIBLE);
                     } else {
                         behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                         Toast.makeText(HistoryRectifying.this, "Unable to update!", Toast.LENGTH_SHORT).show();
+                        shower.setVisibility(View.GONE);
                     }
                 } else {
                     behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                     Toast.makeText(HistoryRectifying.this, "Invalid password", Toast.LENGTH_SHORT).show();
+                    shower.setVisibility(View.GONE);
                 }
             }
         });

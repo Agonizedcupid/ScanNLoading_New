@@ -44,7 +44,7 @@ public class GreenAdapter extends RecyclerView.Adapter<GreenAdapter.ViewHolder> 
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                updateLines.clickForUpdate(model, position, "green");
+                updateLines.clickForUpdate(model, position, "green", holder.shower);
                 return false;
             }
         });
@@ -59,11 +59,13 @@ public class GreenAdapter extends RecyclerView.Adapter<GreenAdapter.ViewHolder> 
 
         private TextView itemName,itemQuantity;
         private TextView comments;
+        private View shower;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             itemName = itemView.findViewById(R.id.itemName);
             itemQuantity = itemView.findViewById(R.id.itemQuantity);
             comments = itemView.findViewById(R.id.comments);
+            shower = itemView.findViewById(R.id.shower);
         }
     }
 }
