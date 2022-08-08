@@ -10,6 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.aariyan.scannloading.Interface.UpdateLines;
 import com.aariyan.scannloading.Model.LinesModel;
 import com.aariyan.scannloading.R;
 
@@ -19,10 +20,12 @@ public class RedAdapter extends RecyclerView.Adapter<RedAdapter.ViewHolder> {
 
     private Context context;
     private List<LinesModel> list;
+    private UpdateLines updateLines;
 
-    public RedAdapter(Context context, List<LinesModel> list) {
+    public RedAdapter(Context context, List<LinesModel> list, UpdateLines updateLines) {
         this.context = context;
         this.list = list;
+        this.updateLines = updateLines;
     }
 
     @NonNull
@@ -38,6 +41,13 @@ public class RedAdapter extends RecyclerView.Adapter<RedAdapter.ViewHolder> {
         holder.itemName.setText(model.getPastelDescription());
         holder.itemQuantity.setText(String.valueOf(model.getQtyOrdered()));
         holder.comments.setText(model.getComment());
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                updateLines.clickForUpdate(model, position, "red");
+                return false;
+            }
+        });
     }
 
 

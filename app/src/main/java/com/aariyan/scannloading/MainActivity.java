@@ -314,6 +314,7 @@ public class MainActivity extends AppCompatActivity implements UserListClick {
                     Intent intent = new Intent(MainActivity.this, Home.class);
                     intent.putExtra("name", name);
                     intent.putExtra("id", userId);
+                    Constant.PIN_CODE = pinCode;
                     startActivity(intent);
                 } else {
                     passwordField.setError("Wrong Credential");

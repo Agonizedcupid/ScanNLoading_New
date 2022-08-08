@@ -428,6 +428,21 @@ public class DatabaseAdapter {
         return ids;
     }
 
+    //Update Quantity of lines table, as well as changing the flag value using orderId & orderDetailsId:
+    public long updateLinesLoaded(int orderId, int orderDetailsId, int flag, int loaded) {
+        SQLiteDatabase database = helper.getWritableDatabase();
+        String selection = DatabaseHelper.OrderIds + " LIKE ? AND " + DatabaseHelper.OrderDetailId + " LIKE ? ";
+        String[] args = {"" + orderId, "" + orderDetailsId};
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(DatabaseHelper.FLAG, flag);
+        contentValues.put(DatabaseHelper.Loadeds, loaded);
+
+        long ids = database.update(DatabaseHelper.LINES_TABLE_NAME, contentValues, selection, args);
+
+        return ids;
+    }
+
 
 //    //Getting all the user
 //    public List<UserListModel> getUserData() {
