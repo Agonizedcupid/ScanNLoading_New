@@ -381,6 +381,58 @@ public class DatabaseAdapter {
     }
 
 
+    public List<HeadersModel> getHeadersByLines(int orderId) {
+
+        headerList.clear();
+        SQLiteDatabase database = helper.getWritableDatabase();
+
+
+        String selection = DatabaseHelper.OrderId + "=?";
+
+
+        String[] args = {"" + orderId};
+
+        String[] columns = {DatabaseHelper.UID, DatabaseHelper.StoreName, DatabaseHelper.Route, DatabaseHelper.DeliverySequence,
+                DatabaseHelper.Invoiced, DatabaseHelper.InvoiceNo, DatabaseHelper.OrderNo, DatabaseHelper.CustomerPastelCode,
+                DatabaseHelper.CustomerId, DatabaseHelper.MESSAGESINV, DatabaseHelper.UserName, DatabaseHelper.OrderId
+                , DatabaseHelper.strLoadedBy, DatabaseHelper.Loaded, DatabaseHelper.blnPicked, DatabaseHelper.blnPriority, DatabaseHelper.deladdress
+                , DatabaseHelper.Value, DatabaseHelper.OrderDate, DatabaseHelper.condition, DatabaseHelper.strCrateName, DatabaseHelper.DATE
+                , DatabaseHelper.ROUTE_NAME, DatabaseHelper.ORDER_TYPES, DatabaseHelper.userId};
+
+        Cursor cursor = database.query(DatabaseHelper.HEADERS_TABLE_NAME, columns, selection, args, null, null, null);
+        while (cursor.moveToNext()) {
+            HeadersModel model = new HeadersModel(
+                    cursor.getString(1),
+                    cursor.getString(2),
+                    cursor.getInt(3),
+                    cursor.getInt(4),
+                    cursor.getString(5),
+                    cursor.getString(6),
+                    cursor.getString(7),
+                    cursor.getInt(8),
+                    cursor.getString(9),
+                    cursor.getString(10),
+                    cursor.getInt(11),
+                    cursor.getString(12),
+                    cursor.getInt(13),
+                    cursor.getInt(14),
+                    cursor.getInt(15),
+                    cursor.getString(16),
+                    cursor.getInt(17),
+                    cursor.getString(18),
+                    cursor.getString(19),
+                    cursor.getString(20),
+                    cursor.getString(21),
+                    cursor.getInt(22),
+                    cursor.getInt(23),
+                    cursor.getInt(24)
+            );
+            headerList.add(model);
+        }
+        return headerList;
+
+    }
+
     public int countZero(int orderId) {
         SQLiteDatabase db = helper.getWritableDatabase();
         //Cursor count = db.rawQuery("SELECT COUNT(\"FLAG\") from lines WHERE \"FLAG\" =0 AND \"OrderId\" = " + orderId, null);
@@ -439,6 +491,20 @@ public class DatabaseAdapter {
         contentValues.put(DatabaseHelper.Loadeds, loaded);
 
         long ids = database.update(DatabaseHelper.LINES_TABLE_NAME, contentValues, selection, args);
+
+        return ids;
+    }
+
+    public long updateHeadersLoaded(int orderId, String customerName, int loaded) {
+        SQLiteDatabase database = helper.getWritableDatabase();
+        String selection = DatabaseHelper.OrderId + " LIKE ? AND " + DatabaseHelper.StoreName + " LIKE ? ";
+        String[] args = {"" + orderId, "" + customerName};
+
+        ContentValues contentValues = new ContentValues();
+        //contentValues.put(DatabaseHelper.FLAG, flag);
+        contentValues.put(DatabaseHelper.Loaded, loaded);
+
+        long ids = database.update(DatabaseHelper.HEADERS_TABLE_NAME, contentValues, selection, args);
 
         return ids;
     }

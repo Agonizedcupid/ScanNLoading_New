@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.aariyan.scannloading.Interface.UpdateLines;
+import com.aariyan.scannloading.Model.HeadersModel;
 import com.aariyan.scannloading.Model.LinesModel;
 import com.aariyan.scannloading.R;
 
@@ -19,13 +20,17 @@ import java.util.List;
 public class RedAdapter extends RecyclerView.Adapter<RedAdapter.ViewHolder> {
 
     private Context context;
-    private List<LinesModel> list;
+    private List<HeadersModel> list;
     private UpdateLines updateLines;
+    int quantity;
+    String comment;
 
-    public RedAdapter(Context context, List<LinesModel> list, UpdateLines updateLines) {
+    public RedAdapter(Context context, List<HeadersModel> list, UpdateLines updateLines, int quantity, String comment) {
         this.context = context;
         this.list = list;
         this.updateLines = updateLines;
+        this.quantity = quantity;
+        this.comment = comment;
     }
 
     @NonNull
@@ -37,17 +42,18 @@ public class RedAdapter extends RecyclerView.Adapter<RedAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        LinesModel model = list.get(position);
-        holder.itemName.setText(model.getPastelDescription());
-        holder.itemQuantity.setText(String.valueOf(model.getQtyOrdered()));
-        holder.comments.setText(model.getComment());
+        HeadersModel model = list.get(position);
+        holder.itemName.setText(model.getStoreName());
+        holder.itemQuantity.setText(String.valueOf(quantity));
+        holder.comments.setText(comment);
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                updateLines.clickForUpdate(model, position, "red", holder.shower);
+                updateLines.clickForUpdate(model, position, "red");
                 return false;
             }
         });
+
     }
 
 

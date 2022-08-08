@@ -18,6 +18,7 @@ import com.aariyan.scannloading.Constant.Constant;
 import com.aariyan.scannloading.Database.DatabaseAdapter;
 import com.aariyan.scannloading.Interface.LinesRectifying;
 import com.aariyan.scannloading.Interface.UpdateLines;
+import com.aariyan.scannloading.Model.HeadersModel;
 import com.aariyan.scannloading.Model.LinesModel;
 import com.aariyan.scannloading.R;
 import com.aariyan.scannloading.utils.LinesHistoryImplemented;
@@ -30,8 +31,9 @@ public class HistoryRectifying extends AppCompatActivity implements UpdateLines 
 
     private RecyclerView redListView, greenListView;
     LinesModel model;
-    List<LinesModel> redList = new ArrayList<>();
-    List<LinesModel> greenList = new ArrayList<>();
+    List<HeadersModel> redList = new ArrayList<>();
+    List<HeadersModel> greenList = new ArrayList<>();
+    List<HeadersModel> headersList = new ArrayList<>();
     List<LinesModel> linesList = new ArrayList<>();
 
     DatabaseAdapter adapter = new DatabaseAdapter(this);
@@ -63,21 +65,21 @@ public class HistoryRectifying extends AppCompatActivity implements UpdateLines 
         bottomSheet = findViewById(R.id.bottomSheet);
         behavior = BottomSheetBehavior.from(bottomSheet);
 
-        loadData("pastel");
+        loadData(0);
     }
 
-    private void loadData(String identifier) {
-        linesList.clear();
+    private void loadData(int identifier) {
+        headersList.clear();
         redList.clear();
         greenList.clear();
-        if (identifier.equals("pastel")) {
+        if (identifier == 0) {
             model = LinesHistoryImplemented.getModel();
-            linesList = adapter.getLinesByName(model.getPastelDescription());
+            headersList = adapter.getHeadersByLines(model.getOrderId());
         } else {
-            linesList = adapter.getLinesByName(identifier);
+            headersList = adapter.getHeadersByLines(identifier);
         }
 
-        for (LinesModel model : linesList) {
+        for (HeadersModel model : headersList) {
             if (model.getLoaded() == 0) {
                 redList.add(model);
             } else {
@@ -85,51 +87,115 @@ public class HistoryRectifying extends AppCompatActivity implements UpdateLines 
             }
         }
 
-        RedAdapter redAdapter = new RedAdapter(this, redList, this);
+        RedAdapter redAdapter = new RedAdapter(this, redList, this, model.getQtyOrdered(), model.getComment());
         redListView.setAdapter(redAdapter);
         redAdapter.notifyDataSetChanged();
 
-        GreenAdapter greenAdapter = new GreenAdapter(this, greenList, this);
+        GreenAdapter greenAdapter = new GreenAdapter(this, greenList, this, model.getQtyOrdered(), model.getComment());
         greenListView.setAdapter(greenAdapter);
         greenAdapter.notifyDataSetChanged();
     }
+//    private void loadData(String identifier) {
+//        linesList.clear();
+//        redList.clear();
+//        greenList.clear();
+//        if (identifier.equals("pastel")) {
+//            model = LinesHistoryImplemented.getModel();
+//            linesList = adapter.getLinesByName(model.getPastelDescription());
+//        } else {
+//            linesList = adapter.getLinesByName(identifier);
+//        }
+//
+//        for (LinesModel model : linesList) {
+//            if (model.getLoaded() == 0) {
+//                redList.add(model);
+//            } else {
+//                greenList.add(model);
+//            }
+//        }
+//
+//        RedAdapter redAdapter = new RedAdapter(this, redList, this);
+//        redListView.setAdapter(redAdapter);
+//        redAdapter.notifyDataSetChanged();
+//
+//        GreenAdapter greenAdapter = new GreenAdapter(this, greenList, this);
+//        greenListView.setAdapter(greenAdapter);
+//        greenAdapter.notifyDataSetChanged();
+//    }
 
     @Override
-    public void clickForUpdate(LinesModel model, int position, String adapterSelection, View shower) {
+    public void clickForUpdate(HeadersModel model, int position, String adapterSelection) {
         int loaded;
         if (adapterSelection.equals("red")) {
             loaded = 1;
+            //Toast.makeText(this, "Called", Toast.LENGTH_SHORT).show();
+            long id = adapter.updateHeadersLoaded(model.getOrderId(), model.getStoreName(), loaded);
+            if (id > 0) {
+                //loadData(model.getOrderId());
+                onBackPressed();
+            } else {
+                Toast.makeText(HistoryRectifying.this, "Unable to update!", Toast.LENGTH_SHORT).show();
+            }
         } else {
             loaded = 0;
-        }
+            behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+            verifyBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (TextUtils.isEmpty(pinCodeField.getText().toString())) {
+                        pinCodeField.setError("Please Enter Pin");
+                        pinCodeField.requestFocus();
+                        return;
+                    }
+                    if (Constant.PIN_CODE == Integer.parseInt(pinCodeField.getText().toString().trim())) {
+                        //long id = adapter.updateLinesLoaded(model.getOrderId(), model.getOrderDetailId(), loaded, loaded);
+                        long id = adapter.updateHeadersLoaded(model.getOrderId(), model.getStoreName(), loaded);
+                        if (id > 0) {
+                            loadData(model.getOrderId());
+                            behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
 
-        behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-        verifyBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (TextUtils.isEmpty(pinCodeField.getText().toString())) {
-                    pinCodeField.setError("Please Enter Pin");
-                    pinCodeField.requestFocus();
-                    return;
-                }
-                if (Constant.PIN_CODE == Integer.parseInt(pinCodeField.getText().toString().trim())) {
-                    long id = adapter.updateLinesLoaded(model.getOrderId(), model.getOrderDetailId(), loaded, loaded);
-                    if (id > 0) {
-                        loadData(model.getPastelDescription());
-                        behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-                        shower.setVisibility(View.VISIBLE);
+                        } else {
+                            behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                            Toast.makeText(HistoryRectifying.this, "Unable to update!", Toast.LENGTH_SHORT).show();
+
+                        }
                     } else {
                         behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-                        Toast.makeText(HistoryRectifying.this, "Unable to update!", Toast.LENGTH_SHORT).show();
-                        shower.setVisibility(View.GONE);
+                        Toast.makeText(HistoryRectifying.this, "Invalid password", Toast.LENGTH_SHORT).show();
+
                     }
-                } else {
-                    behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-                    Toast.makeText(HistoryRectifying.this, "Invalid password", Toast.LENGTH_SHORT).show();
-                    shower.setVisibility(View.GONE);
                 }
-            }
-        });
+            });
+        }
+
+//        behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+//        verifyBtn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if (TextUtils.isEmpty(pinCodeField.getText().toString())) {
+//                    pinCodeField.setError("Please Enter Pin");
+//                    pinCodeField.requestFocus();
+//                    return;
+//                }
+//                if (Constant.PIN_CODE == Integer.parseInt(pinCodeField.getText().toString().trim())) {
+//                    //long id = adapter.updateLinesLoaded(model.getOrderId(), model.getOrderDetailId(), loaded, loaded);
+//                    long id = adapter.updateHeadersLoaded(model.getOrderId(), model.getStoreName(), loaded);
+//                    if (id > 0) {
+//                        loadData(model.getOrderId());
+//                        behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+//                        shower.setVisibility(View.VISIBLE);
+//                    } else {
+//                        behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+//                        Toast.makeText(HistoryRectifying.this, "Unable to update!", Toast.LENGTH_SHORT).show();
+//                        shower.setVisibility(View.GONE);
+//                    }
+//                } else {
+//                    behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+//                    Toast.makeText(HistoryRectifying.this, "Invalid password", Toast.LENGTH_SHORT).show();
+//                    shower.setVisibility(View.GONE);
+//                }
+//            }
+//        });
 
     }
 }
