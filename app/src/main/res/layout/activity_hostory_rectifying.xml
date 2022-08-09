@@ -6,9 +6,56 @@
     android:layout_height="match_parent"
     tools:context=".Activity.HistoryRectifying">
 
+
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_creator="1"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintLeft_creator="1"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintRight_creator="1"
+            android:background="@color/purple_700"
+            >
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <ImageView
+                    android:id="@+id/backBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/arrow_white"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toLeftOf="@id/toolbarTitle"
+                    />
+
+                <TextView
+                    android:id="@+id/toolbarTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintTop_creator="1"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintBottom_creator="1"
+                    app:layout_constraintLeft_toRightOf="@id/backBtn"
+                    app:layout_constraintLeft_creator="1"
+                    android:text="Toolbar"
+                    android:textSize="16sp"
+                    android:textColor="@android:color/white"
+                    />
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.appbar.MaterialToolbar>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/greenList"
@@ -22,7 +69,7 @@
             app:layout_constraintRight_creator="1"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_creator="1"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/toolbar"
             tools:listitem="@layout/single_recycler_items" />
 
         <androidx.recyclerview.widget.RecyclerView

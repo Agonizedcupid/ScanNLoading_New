@@ -22,6 +22,7 @@ public class Constant {
     public static String[] types = {"UPDATE"};
     public static int[] flag = {0, 1, 2};
     public static int position = 0;
+    public static int historyListPosition = 0;
 
     public static int PIN_CODE = 0;
 

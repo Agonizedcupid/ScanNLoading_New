@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.aariyan.scannloading.Activity.HistoryRectifying;
+import com.aariyan.scannloading.Constant.Constant;
 import com.aariyan.scannloading.Interface.LinesRectifying;
 import com.aariyan.scannloading.Model.LinesModel;
 import com.aariyan.scannloading.R;
@@ -39,7 +40,8 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         LinesModel model = list.get(position);
-        holder.itemQuantity.setText(String.valueOf(model.getQtyOrdered()));
+        //holder.itemQuantity.setText(String.valueOf(model.getQtyOrdered()));
+        holder.itemQuantity.setText(String.valueOf(model.getTotalItem()));
         holder.itemName.setText(model.getPastelDescription());
 
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
@@ -48,7 +50,8 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
                 //LinesRectifying linesRectifying = new HistoryRectifying();
                 LinesRectifying linesRectifying = new LinesHistoryImplemented();
                 linesRectifying.carry(model);
-                context.startActivity(new Intent(context, HistoryRectifying.class));
+                Constant.historyListPosition = position;
+                context.startActivity(new Intent(context, HistoryRectifying.class).putExtra("id",model.getProductId()));
                 return false;
             }
         });

@@ -124,6 +124,14 @@ public class Home extends AppCompatActivity {
 
         populateSpinner();
 
+        findViewById(R.id.backBtn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //onBackPressed();
+                finish();
+            }
+        });
+
         //loadLines();
     }
 
@@ -132,11 +140,12 @@ public class Home extends AppCompatActivity {
         if (listOfHistory.size() < 0) {
             Toast.makeText(this, "No History Found!", Toast.LENGTH_SHORT).show();
         } else {
-            for (int i=0; i<listOfHistory.size();i++) {
-                Log.d("COUNTING", "loadLines: "+listOfHistory.get(i).getTotalItem());
+            for (int i = 0; i < listOfHistory.size(); i++) {
+                Log.d("COUNTING", "loadLines: " + listOfHistory.get(i).getTotalItem());
             }
             HistoryAdapter historyAdapter = new HistoryAdapter(this, listOfHistory);
             historyRecyclerView.setAdapter(historyAdapter);
+            historyRecyclerView.scrollToPosition(Constant.historyListPosition);
             historyAdapter.notifyDataSetChanged();
         }
     }
@@ -267,7 +276,8 @@ public class Home extends AppCompatActivity {
     @Override
     protected void onResume() {
 
-        loadingData();
+        loadingData(0);
+        loadLines();
         //loadingResumeData();
 
         if (Constant.isInternetConnected(this)) {
@@ -311,7 +321,7 @@ public class Home extends AppCompatActivity {
 //                    Toast.makeText(Home.this, "Please select date!", Toast.LENGTH_SHORT).show();
 //                    return;
 //                }
-                loadingData();
+                loadingData(1);
             }
         });
 
@@ -372,7 +382,7 @@ public class Home extends AppCompatActivity {
         }
     }
 
-    private void loadingData() {
+    private void loadingData(int check) {
         //headerLinesList.clear();
         //Toast.makeText(this, "" + databaseAdapter.getHeaderByDateRouteNameOrderTypes(date, selectedRoute, selectedOrder, userId).size(), Toast.LENGTH_SHORT).show();
         //headerLinesList = databaseAdapter.getHeaderByDateRouteNameOrderTypes(userName, date, selectedRoute, selectedOrder, userId);
@@ -425,14 +435,27 @@ public class Home extends AppCompatActivity {
                 warningMessage.setVisibility(View.GONE);
                 adapter = new HeaderLinesAdapter(Home.this, headerLinesList);
                 recyclerView.setAdapter(adapter);
+                recyclerView.scrollToPosition(position);
                 adapter.notifyDataSetChanged();
             }
 
 
         } else {
-            databaseAdapter.dropLinesTable();
-            databaseAdapter.dropHeaderTable();
-            callAPIs();
+            if (check == 1) {
+                databaseAdapter.dropLinesTable();
+                databaseAdapter.dropHeaderTable();
+                callAPIs();
+            } else {
+                headerLinesList.clear();
+                headerLinesList = databaseAdapter.getHeaders();
+                recyclerView.setVisibility(View.VISIBLE);
+                warningMessage.setVisibility(View.GONE);
+                adapter = new HeaderLinesAdapter(Home.this, headerLinesList);
+                recyclerView.setAdapter(adapter);
+                recyclerView.scrollToPosition(position);
+                adapter.notifyDataSetChanged();
+            }
+
         }
 
     }
@@ -672,7 +695,7 @@ public class Home extends AppCompatActivity {
                         }
                     }
                 }
-                loadLines();
+                //loadLines();
             } else {
                 progressBar.setVisibility(View.GONE);
                 warningMessage.setVisibility(View.VISIBLE);
@@ -717,5 +740,10 @@ public class Home extends AppCompatActivity {
 //                calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show();
 
         datePickerDialog.show();
+    }
+
+    @Override
+    public void onBackPressed() {
+        //super.onBackPressed();
     }
 }
