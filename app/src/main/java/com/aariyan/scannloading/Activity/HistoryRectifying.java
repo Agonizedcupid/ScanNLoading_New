@@ -1,5 +1,7 @@
 package com.aariyan.scannloading.Activity;
 
+import static com.aariyan.scannloading.Constant.Constant.userId;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -17,14 +19,23 @@ import com.aariyan.scannloading.Adapter.GreenAdapter;
 import com.aariyan.scannloading.Adapter.RedAdapter;
 import com.aariyan.scannloading.Constant.Constant;
 import com.aariyan.scannloading.Database.DatabaseAdapter;
+import com.aariyan.scannloading.Database.SharedPreferences;
 import com.aariyan.scannloading.Interface.LinesRectifying;
 import com.aariyan.scannloading.Interface.RedListChanger;
 import com.aariyan.scannloading.Interface.UpdateLines;
 import com.aariyan.scannloading.Model.HeadersModel;
 import com.aariyan.scannloading.Model.LinesModel;
+import com.aariyan.scannloading.Model.QueueModel;
 import com.aariyan.scannloading.R;
 import com.aariyan.scannloading.utils.LinesHistoryImplemented;
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -90,6 +101,48 @@ public class HistoryRectifying extends AppCompatActivity implements UpdateLines,
         });
 
         loadData(0);
+    }
+
+    private void postBack(String instructions) {
+
+        List<QueueModel> getStock = new ArrayList<>();
+        getStock.add(new QueueModel(777,"UPDATE", instructions));
+
+        SharedPreferences sharedPreferences = new SharedPreferences(HistoryRectifying.this);
+        String appendedUrl = sharedPreferences.getURL(Constant.IP_MODE_KEY, Constant.IP_URL);
+        String URL = appendedUrl + "PostQueueStaging.php";
+
+        StringRequest mStringRequest = new StringRequest(
+                Request.Method.POST,
+                appendedUrl + "PostQueueStaging.php",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                        getStock.clear();
+                        Log.d("FEEDBACK", response);
+                        Toast.makeText(HistoryRectifying.this, response.toString() + " Posted successfully!", Toast.LENGTH_SHORT).show();
+                        //Now Removing the data from SQLite:
+                        //deleteUploadedJobs();
+                        //new DatabaseAdapter(PostLinesService.this).dropQueueTable();
+
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(HistoryRectifying.this, "" + error.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.d("FEEDBACK", "" + error.getMessage());
+            }
+        }
+        ) {
+            @Override
+            public byte[] getBody() throws AuthFailureError {
+                String jsonString = new Gson().toJson(getStock).toString();
+                Log.d("FEEDBACK", jsonString);
+                return jsonString.getBytes();
+            }
+        };
+        Volley.newRequestQueue(HistoryRectifying.this).add(mStringRequest);
     }
 
     private void loadData(int identifier) {
@@ -187,6 +240,13 @@ public class HistoryRectifying extends AppCompatActivity implements UpdateLines,
                     //long id = adapter.updateHeadersLoaded(model.getOrderId(), model.getStoreName(), loaded);
                     if (id > 0) {
                         loadData(model.getOrderId());
+                        StringBuilder builder = new StringBuilder();
+                        builder.append(model.getOrderId()).append("|").append(linesModel.getOrderDetailId()).append("|")
+                                .append(userId).append("|").append(0).append("|").append(linesModel.getQtyOrdered())
+                                .append("|").append(Constant.getDate()).append("|").append("0.0");
+
+                        long checkInsert = adapter.insertQueue(Constant.types[0], builder.toString());
+                        postBack(builder.toString());
                         behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                         //onBackPressed();
                     } else {
@@ -249,6 +309,14 @@ public class HistoryRectifying extends AppCompatActivity implements UpdateLines,
             } else {
                 greenList.addAll(headersList);
             }
+
+            StringBuilder builder = new StringBuilder();
+            builder.append(model.getOrderId()).append("|").append(linesModel.getOrderDetailId()).append("|")
+                    .append(userId).append("|").append(1).append("|").append(linesModel.getQtyOrdered())
+                    .append("|").append(Constant.getDate()).append("|").append("0.0");
+
+            long checkInsert = adapter.insertQueue(Constant.types[0], builder.toString());
+            postBack(builder.toString());
 
             GreenAdapter greenAdapter = new GreenAdapter(this, greenList, this, linesModel.getTotalItem(), linesModel.getComment());
             greenListView.setAdapter(greenAdapter);
