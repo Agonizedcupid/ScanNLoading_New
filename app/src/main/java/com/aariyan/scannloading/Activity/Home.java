@@ -358,10 +358,10 @@ public class Home extends AppCompatActivity {
         getLoadingBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                if (date.equals("")) {
-//                    Toast.makeText(Home.this, "Please select date!", Toast.LENGTH_SHORT).show();
-//                    return;
-//                }
+                if (date.equals("")) {
+                    Toast.makeText(Home.this, "Please select date!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 loadingData(1);
             }
         });
