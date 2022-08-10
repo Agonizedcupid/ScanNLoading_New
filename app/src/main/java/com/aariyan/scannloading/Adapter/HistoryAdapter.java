@@ -43,6 +43,11 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
         //holder.itemQuantity.setText(String.valueOf(model.getQtyOrdered()));
         holder.itemQuantity.setText(String.valueOf(model.getTotalItem()));
         holder.itemName.setText(model.getPastelDescription());
+        if (model.getLoaded() == 0) {
+            holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.holo_red_dark));
+        } else {
+            holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.holo_green_dark));
+        }
 
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
