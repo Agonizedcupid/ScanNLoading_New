@@ -285,12 +285,12 @@ public class Home extends AppCompatActivity {
             loadingLayout.setVisibility(View.GONE);
             historyLayout.setVisibility(View.GONE);
         } else {
-            if (Constant.isInternetConnected(Home.this)) {
-                databaseAdapter.dropHeaderTable();
-                databaseAdapter.dropLinesTable();
-            } else {
-
-            }
+//            if (Constant.isInternetConnected(Home.this)) {
+//                databaseAdapter.dropHeaderTable();
+//                databaseAdapter.dropLinesTable();
+//            } else {
+//
+//            }
 
         }
 
