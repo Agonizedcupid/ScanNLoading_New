@@ -28,6 +28,7 @@ import android.widget.Toast;
 
 import com.aariyan.scannloading.Adapter.HeaderLinesAdapter;
 import com.aariyan.scannloading.Adapter.HistoryAdapter;
+import com.aariyan.scannloading.Adapter.QueueAdapter;
 import com.aariyan.scannloading.Constant.Constant;
 import com.aariyan.scannloading.Database.DatabaseAdapter;
 import com.aariyan.scannloading.Database.SharedPreferences;
@@ -57,7 +58,7 @@ public class Home extends AppCompatActivity {
     public static String userName = "";
     private int userId = 1;
 
-    private RecyclerView recyclerView, historyRecyclerView;
+    private RecyclerView recyclerView, historyRecyclerView, queueRecyclerView;
 
     private RadioButton loadingBtn, queueBtn, historyBtn;
 
@@ -85,7 +86,7 @@ public class Home extends AppCompatActivity {
 
     private ProgressBar progressBar;
 
-    private ConstraintLayout loadingLayout, historyLayout;
+    private ConstraintLayout loadingLayout, historyLayout, queueLayout;
 
     DatabaseAdapter databaseAdapter;
 
@@ -131,6 +132,7 @@ public class Home extends AppCompatActivity {
                 finish();
             }
         });
+
 
         //loadLines();
     }
@@ -276,6 +278,17 @@ public class Home extends AppCompatActivity {
     @Override
     protected void onResume() {
 
+        if (databaseAdapter.getQueue().size() > 0) {
+            QueueAdapter queueAdapter = new QueueAdapter(this, databaseAdapter.getQueue());
+            queueRecyclerView.setAdapter(queueAdapter);
+            queueAdapter.notifyDataSetChanged();
+            loadingLayout.setVisibility(View.GONE);
+            historyLayout.setVisibility(View.GONE);
+        } else {
+            databaseAdapter.dropHeaderTable();
+            databaseAdapter.dropLinesTable();
+        }
+
         loadingData(0);
         loadLines();
         //loadingResumeData();
@@ -307,6 +320,10 @@ public class Home extends AppCompatActivity {
 
         historyRecyclerView = findViewById(R.id.historyRecyclerView);
         historyRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        queueLayout = findViewById(R.id.queueLayout);
+        queueRecyclerView = findViewById(R.id.queueRecyclerView);
+        queueRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         datePicker = findViewById(R.id.dateCardView);
         dateText = findViewById(R.id.dateTextView);
@@ -345,8 +362,16 @@ public class Home extends AppCompatActivity {
         loadingBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+//                if (databaseAdapter.getQueue().size() > 0) {
+//                    loadingLayout.setVisibility(View.GONE);
+//                    historyLayout.setVisibility(View.GONE);
+//                    queueLayout.setVisibility(View.VISIBLE);
+//                    loadingBtn.setChecked(false);
+//                    queueBtn.setChecked(true);
+//                }
                 loadingLayout.setVisibility(View.VISIBLE);
                 historyLayout.setVisibility(View.GONE);
+                queueLayout.setVisibility(View.GONE);
             }
         });
 
@@ -354,14 +379,32 @@ public class Home extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 loadingLayout.setVisibility(View.GONE);
+                historyLayout.setVisibility(View.GONE);
+                queueLayout.setVisibility(View.VISIBLE);
+
+                if (databaseAdapter.getQueue().size() > 0) {
+                    QueueAdapter queueAdapter = new QueueAdapter(Home.this, databaseAdapter.getQueue());
+                    queueRecyclerView.setAdapter(queueAdapter);
+                    queueAdapter.notifyDataSetChanged();
+                } else {
+                    Toast.makeText(Home.this, "Noting in the Queue!", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
         historyBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+//                if (databaseAdapter.getQueue().size() > 0) {
+//                    loadingLayout.setVisibility(View.GONE);
+//                    historyLayout.setVisibility(View.GONE);
+//                    queueLayout.setVisibility(View.VISIBLE);
+//                    loadingBtn.setChecked(false);
+//                    queueBtn.setChecked(true);
+//                }
                 loadLines();
                 loadingLayout.setVisibility(View.GONE);
+                queueLayout.setVisibility(View.GONE);
                 historyLayout.setVisibility(View.VISIBLE);
             }
         });
@@ -442,9 +485,37 @@ public class Home extends AppCompatActivity {
 
         } else {
             if (check == 1) {
-                databaseAdapter.dropLinesTable();
-                databaseAdapter.dropHeaderTable();
-                callAPIs();
+                if (databaseAdapter.getQueue().size() > 0) {
+                    AlertDialog alertDialog = new AlertDialog.Builder(Home.this).create();
+                    alertDialog.setTitle("Alert");
+                    alertDialog.setMessage("You've few data on Queue for posting!");
+                    alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "Continue",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                    //headerLinesList = databaseAdapter.getHeaderByDateRouteNameOrderTypes(date, selectedRoute, selectedOrder, userId);
+                                    headerLinesList = databaseAdapter.getHeaders();
+                                    recyclerView.setVisibility(View.VISIBLE);
+                                    warningMessage.setVisibility(View.GONE);
+                                    adapter = new HeaderLinesAdapter(Home.this, headerLinesList);
+                                    recyclerView.setAdapter(adapter);
+                                    adapter.notifyDataSetChanged();
+                                }
+                            });
+
+                    alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Cancel",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            });
+                    alertDialog.show();
+                } else {
+                    databaseAdapter.dropLinesTable();
+                    databaseAdapter.dropHeaderTable();
+                    callAPIs();
+                }
+
             } else {
                 headerLinesList.clear();
                 headerLinesList = databaseAdapter.getHeaders();

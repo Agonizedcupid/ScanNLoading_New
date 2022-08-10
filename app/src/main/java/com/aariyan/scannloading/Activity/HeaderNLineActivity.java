@@ -388,7 +388,12 @@ public class HeaderNLineActivity extends AppCompatActivity implements QuantityUp
                     builder.append(orderId).append("|").append(orderDetailsId).append("|")
                             .append(userId).append("|").append(0).append("|").append(quantityUpdate.getText().toString())
                             .append("|").append(Constant.getDate()).append("|").append("0.0");
-                    postBack(builder.toString());
+                    if (Constant.isInternetConnected(HeaderNLineActivity.this)) {
+                        postBack(builder.toString());
+                    } else {
+                        long id = databaseAdapter.insertQueue(Constant.types[0], builder.toString());
+                    }
+
                     loadLinesFromSQLite();
                 }
                 if (ids < 0) {
@@ -441,43 +446,43 @@ public class HeaderNLineActivity extends AppCompatActivity implements QuantityUp
     private void postBack(String instructions) {
 
         List<QueueModel> getStock = new ArrayList<>();
-        getStock.add(new QueueModel(777,"UPDATE", instructions));
+        getStock.add(new QueueModel(777, "UPDATE", instructions));
 
         SharedPreferences sharedPreferences = new SharedPreferences(HeaderNLineActivity.this);
         String appendedUrl = sharedPreferences.getURL(Constant.IP_MODE_KEY, Constant.IP_URL);
         String URL = appendedUrl + "PostQueueStaging.php";
 
-            StringRequest mStringRequest = new StringRequest(
-                    Request.Method.POST,
-                    appendedUrl + "PostQueueStaging.php",
-                    new Response.Listener<String>() {
-                        @Override
-                        public void onResponse(String response) {
+        StringRequest mStringRequest = new StringRequest(
+                Request.Method.POST,
+                appendedUrl + "PostQueueStaging.php",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
 
-                            getStock.clear();
-                            Log.d("FEEDBACK", response);
-                            Toast.makeText(HeaderNLineActivity.this, response.toString() + " Posted successfully!", Toast.LENGTH_SHORT).show();
-                            //Now Removing the data from SQLite:
-                            //deleteUploadedJobs();
-                            //new DatabaseAdapter(PostLinesService.this).dropQueueTable();
+                        getStock.clear();
+                        Log.d("FEEDBACK", response);
+                        Toast.makeText(HeaderNLineActivity.this, response.toString() + " Posted successfully!", Toast.LENGTH_SHORT).show();
+                        //Now Removing the data from SQLite:
+                        //deleteUploadedJobs();
+                        //new DatabaseAdapter(PostLinesService.this).dropQueueTable();
 
-                        }
-                    }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Toast.makeText(HeaderNLineActivity.this, "" + error.getMessage(), Toast.LENGTH_SHORT).show();
-                    Log.d("FEEDBACK", "" + error.getMessage());
-                }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Toast.makeText(HeaderNLineActivity.this, "" + error.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.d("FEEDBACK", "" + error.getMessage());
             }
-            ) {
-                @Override
-                public byte[] getBody() throws AuthFailureError {
-                    String jsonString = new Gson().toJson(getStock).toString();
-                    Log.d("FEEDBACK", jsonString);
-                    return jsonString.getBytes();
-                }
-            };
-            Volley.newRequestQueue(HeaderNLineActivity.this).add(mStringRequest);
+        }
+        ) {
+            @Override
+            public byte[] getBody() throws AuthFailureError {
+                String jsonString = new Gson().toJson(getStock).toString();
+                Log.d("FEEDBACK", jsonString);
+                return jsonString.getBytes();
+            }
+        };
+        Volley.newRequestQueue(HeaderNLineActivity.this).add(mStringRequest);
     }
 
     @Override
@@ -499,7 +504,7 @@ public class HeaderNLineActivity extends AppCompatActivity implements QuantityUp
                 //Snackbar.make(snackBarLayout, "Data stored locally!", Snackbar.LENGTH_SHORT).show();
                 loadLinesFromSQLite();
             } else {
-               // Snackbar.make(snackBarLayout, "Unable to store data!", Snackbar.LENGTH_SHORT).show();
+                // Snackbar.make(snackBarLayout, "Unable to store data!", Snackbar.LENGTH_SHORT).show();
             }
         } else {
             ids = databaseAdapter.updateLinesQuantity(orderId, orderDetailsId,
@@ -510,7 +515,12 @@ public class HeaderNLineActivity extends AppCompatActivity implements QuantityUp
                     .append(userId).append("|").append(0).append("|").append(quantity)
                     .append("|").append(Constant.getDate()).append("|").append("0.0");
 
-            postBack(builder.toString());
+            //postBack(builder.toString());
+            if (Constant.isInternetConnected(HeaderNLineActivity.this)) {
+                postBack(builder.toString());
+            } else {
+                long id = databaseAdapter.insertQueue(Constant.types[0], builder.toString());
+            }
             loadLinesFromSQLite();
         }
 

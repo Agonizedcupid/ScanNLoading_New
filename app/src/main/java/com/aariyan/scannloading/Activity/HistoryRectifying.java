@@ -246,7 +246,7 @@ public class HistoryRectifying extends AppCompatActivity implements UpdateLines,
                                 .append("|").append(Constant.getDate()).append("|").append("0.0");
 
                         long checkInsert = adapter.insertQueue(Constant.types[0], builder.toString());
-                        postBack(builder.toString());
+                        //postBack(builder.toString());
                         behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                         //onBackPressed();
                     } else {
@@ -316,7 +316,7 @@ public class HistoryRectifying extends AppCompatActivity implements UpdateLines,
                     .append("|").append(Constant.getDate()).append("|").append("0.0");
 
             long checkInsert = adapter.insertQueue(Constant.types[0], builder.toString());
-            postBack(builder.toString());
+            //postBack(builder.toString());
 
             GreenAdapter greenAdapter = new GreenAdapter(this, greenList, this, linesModel.getTotalItem(), linesModel.getComment());
             greenListView.setAdapter(greenAdapter);
