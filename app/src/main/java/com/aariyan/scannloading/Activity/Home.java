@@ -278,6 +278,9 @@ public class Home extends AppCompatActivity {
     @Override
     protected void onResume() {
 
+
+
+
         if (databaseAdapter.getQueue().size() > 0) {
             QueueAdapter queueAdapter = new QueueAdapter(this, databaseAdapter.getQueue());
             queueRecyclerView.setAdapter(queueAdapter);
@@ -304,6 +307,22 @@ public class Home extends AppCompatActivity {
             }
         } else {
             Toast.makeText(this, "No Internet Connection!", Toast.LENGTH_SHORT).show();
+        }
+
+        if (loadingBtn.isChecked()) {
+            loadingLayout.setVisibility(View.VISIBLE);
+            historyLayout.setVisibility(View.GONE);
+            queueLayout.setVisibility(View.GONE);
+        }
+        if (historyBtn.isChecked()) {
+            loadingLayout.setVisibility(View.GONE);
+            historyLayout.setVisibility(View.VISIBLE);
+            queueLayout.setVisibility(View.GONE);
+        }
+        if (queueBtn.isChecked()) {
+            loadingLayout.setVisibility(View.GONE);
+            historyLayout.setVisibility(View.GONE);
+            queueLayout.setVisibility(View.VISIBLE);
         }
 
         super.onResume();
