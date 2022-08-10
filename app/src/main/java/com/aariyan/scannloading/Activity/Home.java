@@ -285,8 +285,13 @@ public class Home extends AppCompatActivity {
             loadingLayout.setVisibility(View.GONE);
             historyLayout.setVisibility(View.GONE);
         } else {
-            databaseAdapter.dropHeaderTable();
-            databaseAdapter.dropLinesTable();
+            if (Constant.isInternetConnected(Home.this)) {
+                databaseAdapter.dropHeaderTable();
+                databaseAdapter.dropLinesTable();
+            } else {
+
+            }
+
         }
 
         loadingData(0);
@@ -381,13 +386,17 @@ public class Home extends AppCompatActivity {
                 loadingLayout.setVisibility(View.GONE);
                 historyLayout.setVisibility(View.GONE);
                 queueLayout.setVisibility(View.VISIBLE);
+                List<QueueModel> list = new ArrayList<>();
+                list = databaseAdapter.getQueue();
 
                 if (databaseAdapter.getQueue().size() > 0) {
-                    QueueAdapter queueAdapter = new QueueAdapter(Home.this, databaseAdapter.getQueue());
+                    queueRecyclerView.setVisibility(View.VISIBLE);
+                    QueueAdapter queueAdapter = new QueueAdapter(Home.this, list);
                     queueRecyclerView.setAdapter(queueAdapter);
                     queueAdapter.notifyDataSetChanged();
                 } else {
                     Toast.makeText(Home.this, "Noting in the Queue!", Toast.LENGTH_SHORT).show();
+                    queueRecyclerView.setVisibility(View.GONE);
                 }
             }
         });
