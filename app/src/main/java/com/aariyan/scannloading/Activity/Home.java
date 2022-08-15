@@ -70,7 +70,7 @@ public class Home extends AppCompatActivity {
     private RequestQueue requestQueue;
 
     private ProgressBar topProgressbar;
-    private TextView warningMessage;
+    //private TextView warningMessage;
     private List<OrderModel> orderList = new ArrayList<>();
     private List<RouteModel> routeList = new ArrayList<>();
 
@@ -162,8 +162,8 @@ public class Home extends AppCompatActivity {
         JsonObjectRequest array = new JsonObjectRequest(Request.Method.GET, appendedUrl, null,
                 this::parseJson,
                 e -> {
-                    warningMessage.setVisibility(View.VISIBLE);
-                    warningMessage.setText("Error: " + e.getMessage());
+                    //warningMessage.setVisibility(View.VISIBLE);
+                    //warningMessage.setText("Error: " + e.getMessage());
                     topProgressbar.setVisibility(View.GONE);
                 });
 
@@ -180,7 +180,9 @@ public class Home extends AppCompatActivity {
             orderList.clear();
             routeList.clear();
             //Making the warning text Disable:
-            warningMessage.setVisibility(View.GONE);
+
+
+            //warningMessage.setVisibility(View.GONE);
 
             JSONArray routes = object.getJSONArray("routes");
             if (routes.length() > 0) {
@@ -221,13 +223,14 @@ public class Home extends AppCompatActivity {
 
             topProgressbar.setVisibility(View.GONE);
             //If any error happen make it visible and show a warning message:
-            warningMessage.setVisibility(View.GONE);
+
+            //warningMessage.setVisibility(View.GONE);
             //warningMessage.setText("No data found!");
 
         } catch (Exception e) {
             //If any error happen make it visible and show a warning message:
-            warningMessage.setVisibility(View.VISIBLE);
-            warningMessage.setText("Error: " + e.getMessage());
+            //warningMessage.setVisibility(View.VISIBLE);
+           // warningMessage.setText("Error: " + e.getMessage());
             topProgressbar.setVisibility(View.GONE);
         }
 
@@ -334,7 +337,7 @@ public class Home extends AppCompatActivity {
 
         topProgressbar = findViewById(R.id.topProgressbar);
         progressBar = findViewById(R.id.pBar);
-        warningMessage = findViewById(R.id.warningMessage);
+        //warningMessage = findViewById(R.id.warningMessage);
 
         loadingLayout = findViewById(R.id.loadingLayout);
         historyLayout = findViewById(R.id.historyLayout);
@@ -443,7 +446,7 @@ public class Home extends AppCompatActivity {
         if (headerLinesList.size() > 0) {
             //Toast.makeText(this, "Ache", Toast.LENGTH_SHORT).show();
             recyclerView.setVisibility(View.VISIBLE);
-            warningMessage.setVisibility(View.GONE);
+            //warningMessage.setVisibility(View.GONE);
             adapter = new HeaderLinesAdapter(Home.this, headerLinesList);
             recyclerView.setAdapter(adapter);
             adapter.notifyDataSetChanged();
@@ -485,7 +488,7 @@ public class Home extends AppCompatActivity {
                                 //headerLinesList = databaseAdapter.getHeaderByDateRouteNameOrderTypes(date, selectedRoute, selectedOrder, userId);
                                 headerLinesList = databaseAdapter.getHeaders();
                                 recyclerView.setVisibility(View.VISIBLE);
-                                warningMessage.setVisibility(View.GONE);
+                                //warningMessage.setVisibility(View.GONE);
                                 adapter = new HeaderLinesAdapter(Home.this, headerLinesList);
                                 recyclerView.setAdapter(adapter);
                                 adapter.notifyDataSetChanged();
@@ -503,7 +506,7 @@ public class Home extends AppCompatActivity {
                 //headerLinesList = databaseAdapter.getHeaderByDateRouteNameOrderTypes(date, selectedRoute, selectedOrder, userId);
                 headerLinesList = databaseAdapter.getHeaders();
                 recyclerView.setVisibility(View.VISIBLE);
-                warningMessage.setVisibility(View.GONE);
+                //warningMessage.setVisibility(View.GONE);
                 adapter = new HeaderLinesAdapter(Home.this, headerLinesList);
                 recyclerView.setAdapter(adapter);
                 recyclerView.scrollToPosition(position);
@@ -524,7 +527,7 @@ public class Home extends AppCompatActivity {
                                     //headerLinesList = databaseAdapter.getHeaderByDateRouteNameOrderTypes(date, selectedRoute, selectedOrder, userId);
                                     headerLinesList = databaseAdapter.getHeaders();
                                     recyclerView.setVisibility(View.VISIBLE);
-                                    warningMessage.setVisibility(View.GONE);
+                                    //warningMessage.setVisibility(View.GONE);
                                     adapter = new HeaderLinesAdapter(Home.this, headerLinesList);
                                     recyclerView.setAdapter(adapter);
                                     adapter.notifyDataSetChanged();
@@ -548,7 +551,7 @@ public class Home extends AppCompatActivity {
                 headerLinesList.clear();
                 headerLinesList = databaseAdapter.getHeaders();
                 recyclerView.setVisibility(View.VISIBLE);
-                warningMessage.setVisibility(View.GONE);
+                //warningMessage.setVisibility(View.GONE);
                 adapter = new HeaderLinesAdapter(Home.this, headerLinesList);
                 recyclerView.setAdapter(adapter);
                 recyclerView.scrollToPosition(position);
@@ -571,8 +574,8 @@ public class Home extends AppCompatActivity {
                 this::parseOrdernOrderJson,
                 e -> {
                     recyclerView.setVisibility(View.GONE);
-                    warningMessage.setVisibility(View.VISIBLE);
-                    warningMessage.setText("Error: " + e.getMessage());
+                    //warningMessage.setVisibility(View.VISIBLE);
+                    //warningMessage.setText("Error: " + e.getMessage());
                     progressBar.setVisibility(View.GONE);
                 });
 
@@ -671,7 +674,7 @@ public class Home extends AppCompatActivity {
 
             headerLinesList.clear();
             if (Headers.length() > 0) {
-                warningMessage.setVisibility(View.GONE);
+                //warningMessage.setVisibility(View.GONE);
                 for (int i = 0; i < Headers.length(); i++) {
                     JSONObject single = Headers.getJSONObject(i);
 
@@ -745,8 +748,8 @@ public class Home extends AppCompatActivity {
 
             } else {
                 progressBar.setVisibility(View.GONE);
-                warningMessage.setVisibility(View.VISIBLE);
-                warningMessage.setText("No data found!");
+                //warningMessage.setVisibility(View.VISIBLE);
+                //warningMessage.setText("No data found!");
                 recyclerView.setVisibility(View.GONE);
             }
 
@@ -797,8 +800,8 @@ public class Home extends AppCompatActivity {
                 //loadLines();
             } else {
                 progressBar.setVisibility(View.GONE);
-                warningMessage.setVisibility(View.VISIBLE);
-                warningMessage.setText("No data found!");
+                //warningMessage.setVisibility(View.VISIBLE);
+                //warningMessage.setText("No data found!");
                 recyclerView.setVisibility(View.GONE);
 
             }
@@ -808,8 +811,8 @@ public class Home extends AppCompatActivity {
             e.printStackTrace();
             //Toast.makeText(Home.this, "" + e.getMessage(), Toast.LENGTH_SHORT).show();
             progressBar.setVisibility(View.GONE);
-            warningMessage.setVisibility(View.VISIBLE);
-            warningMessage.setText("" + e.getMessage());
+            //warningMessage.setVisibility(View.VISIBLE);
+            //warningMessage.setText("" + e.getMessage());
             recyclerView.setVisibility(View.GONE);
 
         }
