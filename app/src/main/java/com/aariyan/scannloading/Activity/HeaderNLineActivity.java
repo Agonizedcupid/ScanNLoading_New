@@ -319,30 +319,30 @@ public class HeaderNLineActivity extends AppCompatActivity implements QuantityUp
         itemPrice.setText(String.format("%s", price));
         behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
 
-        quantityUpdate.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if (!charSequence.toString().equals("")) {
-                    int enteredQuantity = Integer.parseInt(charSequence.toString());
-                    if (enteredQuantity > quantity) {
-                        quantityUpdate.setError("Maximum quantity is " + quantity);
-                        quantityUpdate.requestFocus();
-                        return;
-                    }
-                }
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-            }
-        });
+//        quantityUpdate.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+//
+//            }
+//
+//            @Override
+//            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+//                if (!charSequence.toString().equals("")) {
+//                    int enteredQuantity = Integer.parseInt(charSequence.toString());
+////                    if (enteredQuantity > quantity) {
+////                        quantityUpdate.setError("Maximum quantity is " + quantity);
+////                        quantityUpdate.requestFocus();
+////                        return;
+////                    }
+//                }
+//
+//            }
+//
+//            @Override
+//            public void afterTextChanged(Editable editable) {
+//
+//            }
+//        });
 
         updateQuantityBtn.setVisibility(View.VISIBLE);
         updateQuantityBtnByBarcode.setVisibility(View.GONE);
@@ -461,7 +461,7 @@ public class HeaderNLineActivity extends AppCompatActivity implements QuantityUp
 
                         getStock.clear();
                         Log.d("FEEDBACK", response);
-                        Toast.makeText(HeaderNLineActivity.this, response.toString() + " Posted successfully!", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(HeaderNLineActivity.this, response.toString() + " Posted successfully!", Toast.LENGTH_SHORT).show();
                         //Now Removing the data from SQLite:
                         //deleteUploadedJobs();
                         //new DatabaseAdapter(PostLinesService.this).dropQueueTable();

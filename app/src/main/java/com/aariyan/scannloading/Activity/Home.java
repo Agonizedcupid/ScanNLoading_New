@@ -20,6 +20,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.Spinner;
@@ -95,6 +96,8 @@ public class Home extends AppCompatActivity {
     private ConstraintLayout snackBarLayout;
 
     private List<Integer> flagList = new ArrayList<>();
+
+    private ImageView dropTable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -351,6 +354,19 @@ public class Home extends AppCompatActivity {
         queueLayout = findViewById(R.id.queueLayout);
         queueRecyclerView = findViewById(R.id.queueRecyclerView);
         queueRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        dropTable = findViewById(R.id.dropDatabase);
+        dropTable.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                databaseAdapter.dropHeaderTable();
+                databaseAdapter.dropLinesTable();
+
+                //Load new Data:
+                loadingData(0);
+                Toast.makeText(Home.this, "Without Queue, All data are cleared!", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         datePicker = findViewById(R.id.dateCardView);
         dateText = findViewById(R.id.dateTextView);
