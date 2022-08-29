@@ -9,6 +9,9 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.IdentityHashMap;
+import java.util.Map;
 
 public class Constant {
 
@@ -25,6 +28,8 @@ public class Constant {
     public static int historyListPosition = 0;
 
     public static int PIN_CODE = 0;
+
+    public static Map<Integer, Integer> map = new HashMap<>();
 
     /*
     0 == Black zone

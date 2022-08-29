@@ -9,6 +9,7 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import com.aariyan.scannloading.Constant.Constant;
 import com.aariyan.scannloading.Model.HeadersModel;
 import com.aariyan.scannloading.Model.LinesModel;
 import com.aariyan.scannloading.Model.QueueModel;
@@ -288,6 +289,33 @@ public class DatabaseAdapter {
             linesList.add(model);
         }
         return linesList;
+
+    }
+
+    //get Lines by User Name , date, route Name, order types, user id
+    public List<Integer> getLinesOrderIdByName(String pastelDescription) {
+
+        List<Integer> list = new ArrayList<>();
+        SQLiteDatabase database = helper.getWritableDatabase();
+        //select * from tableName where name = ? and customerName = ?:
+        // String selection = DatabaseHelper.USER_NAME+" where ? AND "+DatabaseHelper.CUSTOMER_NAME+" LIKE ?";
+        String selection = DatabaseHelper.PastelDescription + "=?";
+
+
+        String[] args = {"" + pastelDescription};
+        String[] columns = {DatabaseHelper.UID, DatabaseHelper.blnPickeds, DatabaseHelper.Loadeds, DatabaseHelper.PastelCode,
+                DatabaseHelper.PastelDescription, DatabaseHelper.ProductId, DatabaseHelper.Qty, DatabaseHelper.QtyOrdered,
+                DatabaseHelper.Price, DatabaseHelper.Comment, DatabaseHelper.UnitSize, DatabaseHelper.strBulkUnit
+                , DatabaseHelper.UnitWeight, DatabaseHelper.OrderIds, DatabaseHelper.OrderDetailId, DatabaseHelper.BarCode, DatabaseHelper.ScannedQty
+                , DatabaseHelper.isRandom, DatabaseHelper.PickingTeam, DatabaseHelper.FLAG};
+
+        Cursor cursor = database.query(DatabaseHelper.LINES_TABLE_NAME, columns, selection, args, null, null, null);
+        while (cursor.moveToNext()) {
+            list.add(cursor.getInt(13));
+            Constant.map.put(cursor.getInt(13), cursor.getInt(7));
+            Log.d("DATABASE_TESTING", "getLinesOrderIdByName: "+cursor.getInt(7));
+        }
+        return list;
 
     }
 

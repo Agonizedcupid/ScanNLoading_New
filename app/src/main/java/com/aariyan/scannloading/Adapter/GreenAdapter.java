@@ -1,6 +1,7 @@
 package com.aariyan.scannloading.Adapter;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.aariyan.scannloading.Constant.Constant;
 import com.aariyan.scannloading.Interface.UpdateLines;
 import com.aariyan.scannloading.Model.HeadersModel;
 import com.aariyan.scannloading.Model.LinesModel;
@@ -44,7 +46,12 @@ public class GreenAdapter extends RecyclerView.Adapter<GreenAdapter.ViewHolder> 
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         HeadersModel model = list.get(position);
         holder.itemName.setText(model.getStoreName());
-        holder.itemQuantity.setText(String.valueOf(quantity));
+//        holder.itemQuantity.setText(String.valueOf(quantity));
+        try {
+            holder.itemQuantity.setText(""+ Constant.map.get(model.getOrderId()));
+        } catch (Exception e) {
+            Log.d("EXCEPTION_TESTING", "onBindViewHolder: " + e.getMessage());
+        }
         holder.comments.setText(comment);
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override

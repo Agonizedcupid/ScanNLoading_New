@@ -1,6 +1,7 @@
 package com.aariyan.scannloading.Adapter;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.aariyan.scannloading.Constant.Constant;
 import com.aariyan.scannloading.Interface.RedListChanger;
 import com.aariyan.scannloading.Interface.UpdateLines;
 import com.aariyan.scannloading.Model.HeadersModel;
@@ -37,7 +39,7 @@ public class RedAdapter extends RecyclerView.Adapter<RedAdapter.ViewHolder> {
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new ViewHolder(LayoutInflater.from(context).inflate(R.layout.single_item,parent,false));
+        return new ViewHolder(LayoutInflater.from(context).inflate(R.layout.single_item, parent, false));
     }
 
 
@@ -45,7 +47,17 @@ public class RedAdapter extends RecyclerView.Adapter<RedAdapter.ViewHolder> {
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         HeadersModel model = list.get(position);
         holder.itemName.setText(model.getStoreName());
-        holder.itemQuantity.setText(String.valueOf(quantity));
+        //holder.itemQuantity.setText(String.valueOf(quantity));
+//        for (int i=0; i<Constant.map.size(); i++) {
+//            Log.d("VIEW_HOLDER", "onBindViewHolder: "+Constant.map.get(model.getOrderId()));
+//        }
+
+        try {
+            holder.itemQuantity.setText(""+Constant.map.get(model.getOrderId()));
+        } catch (Exception e) {
+            Log.d("EXCEPTION_TESTING", "onBindViewHolder: " + e.getMessage());
+        }
+
         holder.comments.setText(comment);
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -64,7 +76,7 @@ public class RedAdapter extends RecyclerView.Adapter<RedAdapter.ViewHolder> {
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        private TextView itemName,itemQuantity;
+        private TextView itemName, itemQuantity;
         private TextView comments;
         private View shower;
 

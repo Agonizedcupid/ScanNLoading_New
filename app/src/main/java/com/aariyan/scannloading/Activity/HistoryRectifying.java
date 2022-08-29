@@ -38,6 +38,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class HistoryRectifying extends AppCompatActivity implements UpdateLines, RedListChanger {
@@ -58,6 +59,7 @@ public class HistoryRectifying extends AppCompatActivity implements UpdateLines,
 
     private TextView toolbarTitle;
     private static int productId = 0;
+    private static String orderId = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +68,7 @@ public class HistoryRectifying extends AppCompatActivity implements UpdateLines,
 
         if (getIntent().hasExtra("id")) {
             productId = getIntent().getIntExtra("id", 0);
+            orderId = getIntent().getStringExtra("name");
         }
 
         initUI();
@@ -106,7 +109,7 @@ public class HistoryRectifying extends AppCompatActivity implements UpdateLines,
     private void postBack(String instructions) {
 
         List<QueueModel> getStock = new ArrayList<>();
-        getStock.add(new QueueModel(777,"UPDATE", instructions));
+        getStock.add(new QueueModel(777, "UPDATE", instructions));
 
         SharedPreferences sharedPreferences = new SharedPreferences(HistoryRectifying.this);
         String appendedUrl = sharedPreferences.getURL(Constant.IP_MODE_KEY, Constant.IP_URL);
@@ -146,12 +149,19 @@ public class HistoryRectifying extends AppCompatActivity implements UpdateLines,
     }
 
     private void loadData(int identifier) {
+        List<Integer> listOfId = new ArrayList<>();
         headersList.clear();
         redList.clear();
         greenList.clear();
         if (identifier == 0) {
             linesModel = LinesHistoryImplemented.getModel();
-            headersList = adapter.getHeadersByLines(linesModel.getOrderId());
+
+            listOfId = adapter.getLinesOrderIdByName(orderId);
+            for (int i = 0; i < listOfId.size(); i++) {
+                headersList.addAll(adapter.getHeadersByLines(listOfId.get(i)));
+            }
+            Log.d("LINES_TESTING", "loadData: " + headersList.size());
+
         } else {
             headersList = adapter.getHeadersByLines(identifier);
             linesModel = adapter.getLinesById(productId);
@@ -208,6 +218,7 @@ public class HistoryRectifying extends AppCompatActivity implements UpdateLines,
 //        greenListView.setAdapter(greenAdapter);
 //        greenAdapter.notifyDataSetChanged();
 //    }
+
 
     @Override
     public void clickForUpdate(HeadersModel model, int position, String adapterSelection) {
