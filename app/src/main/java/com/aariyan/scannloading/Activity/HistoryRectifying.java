@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -59,7 +60,9 @@ public class HistoryRectifying extends AppCompatActivity implements UpdateLines,
 
     private TextView toolbarTitle;
     private static int productId = 0;
-    private static String orderId = "";
+    private static String linesName = "";
+
+    private List<Integer> listOfLinesId = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +71,7 @@ public class HistoryRectifying extends AppCompatActivity implements UpdateLines,
 
         if (getIntent().hasExtra("id")) {
             productId = getIntent().getIntExtra("id", 0);
-            orderId = getIntent().getStringExtra("name");
+            linesName = getIntent().getStringExtra("name");
         }
 
         initUI();
@@ -103,7 +106,8 @@ public class HistoryRectifying extends AppCompatActivity implements UpdateLines,
             }
         });
 
-        loadData(0);
+        //loadData(0);
+        loadNewData();
     }
 
     private void postBack(String instructions) {
@@ -148,6 +152,48 @@ public class HistoryRectifying extends AppCompatActivity implements UpdateLines,
         Volley.newRequestQueue(HistoryRectifying.this).add(mStringRequest);
     }
 
+    private void loadNewData() {
+        headersList.clear();
+        redList.clear();
+        greenList.clear();
+        listOfLinesId.clear();
+        listOfLinesId = adapter.getLinesOrderIdByName(linesName);
+        for (int i = 0; i < listOfLinesId.size(); i++) {
+            headersList.addAll(adapter.getHeadersByLines(listOfLinesId.get(i)));
+        }
+
+        toolbarTitle.setText(String.valueOf(linesName));
+
+        //Sorting the red and green list:
+        List<LinesModel> listOfLines = adapter.getLinesByName(linesName);
+        for (LinesModel linesModel : listOfLines) {
+            if (linesModel.getLoaded() == 0) {
+                for (int i = 0; i < headersList.size(); i++) {
+                    HeadersModel model = headersList.get(i);
+                    if (model.getOrderId() == linesModel.getOrderId()) {
+                        redList.add(model);
+                    }
+                }
+            } else {
+                for (int i = 0; i < headersList.size(); i++) {
+                    HeadersModel model = headersList.get(i);
+                    if (model.getOrderId() == linesModel.getOrderId()) {
+                        greenList.add(model);
+                    }
+                }
+            }
+        }
+
+
+        RedAdapter redAdapter = new RedAdapter(this, redList, this, 0, "");
+        redListView.setAdapter(redAdapter);
+        redAdapter.notifyDataSetChanged();
+
+        GreenAdapter greenAdapter = new GreenAdapter(this, greenList, this, 0, "");
+        greenListView.setAdapter(greenAdapter);
+        greenAdapter.notifyDataSetChanged();
+    }
+
     private void loadData(int identifier) {
         List<Integer> listOfId = new ArrayList<>();
         headersList.clear();
@@ -156,7 +202,7 @@ public class HistoryRectifying extends AppCompatActivity implements UpdateLines,
         if (identifier == 0) {
             linesModel = LinesHistoryImplemented.getModel();
 
-            listOfId = adapter.getLinesOrderIdByName(orderId);
+            listOfId = adapter.getLinesOrderIdByName(linesName);
             for (int i = 0; i < listOfId.size(); i++) {
                 headersList.addAll(adapter.getHeadersByLines(listOfId.get(i)));
             }
@@ -247,16 +293,21 @@ public class HistoryRectifying extends AppCompatActivity implements UpdateLines,
                 }
                 if (Constant.PIN_CODE == Integer.parseInt(pinCodeField.getText().toString().trim())) {
                     //long id = adapter.updateLinesLoaded(model.getOrderId(), model.getOrderDetailId(), loaded, loaded);
-                    long id = adapter.updateLinesLoaded(model.getOrderId(), linesModel.getOrderDetailId(), loaded, loaded);
+                    long id = adapter.updateLinesLoaded(model.getOrderId(), Constant.linesMap.get(model.getOrderId()), loaded, loaded);
                     //long id = adapter.updateHeadersLoaded(model.getOrderId(), model.getStoreName(), loaded);
                     if (id > 0) {
-                        loadData(model.getOrderId());
-                        StringBuilder builder = new StringBuilder();
-                        builder.append(model.getOrderId()).append("|").append(linesModel.getOrderDetailId()).append("|")
-                                .append(userId).append("|").append(0).append("|").append(linesModel.getQtyOrdered())
-                                .append("|").append(Constant.getDate()).append("|").append("0.0");
+                        //loadData(model.getOrderId());
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                loadNewData();
+                            }
+                        },1000);
+                        String builder = model.getOrderId() + "|" + Constant.linesMap.get(model.getOrderId()) + "|" +
+                                userId + "|" + 0 + "|" + Constant.map.get(model.getOrderId()) +
+                                "|" + Constant.getDate() + "|" + "0.0";
 
-                        long checkInsert = adapter.insertQueue(Constant.types[0], builder.toString());
+                        long checkInsert = adapter.insertQueue(Constant.types[0], builder);
                         //postBack(builder.toString());
                         behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                         //onBackPressed();
@@ -308,30 +359,54 @@ public class HistoryRectifying extends AppCompatActivity implements UpdateLines,
     @Override
     public void clickForRedUpdate(HeadersModel model, int position, String adapterSelection) {
         int loaded = 1;
+
+        /**
+         *  ramsay : 1327729 : 8497982
+         */
+
+
         //Toast.makeText(this, "Called", Toast.LENGTH_SHORT).show();
         //long id = adapter.updateHeadersLoaded(model.getOrderId(), model.getStoreName(), loaded);
-        long id = adapter.updateLinesLoaded(model.getOrderId(), linesModel.getOrderDetailId(), loaded, loaded);
+        long id = adapter.updateLinesLoaded(model.getOrderId(), Constant.linesMap.get(model.getOrderId()), loaded, loaded);
+        //Log.d("RED_LIST", "clickForRedUpdate: " + model.getOrderId() + " : " + Constant.linesMap.get(model.getOrderId()));
         if (id > 0) {
-            redList.clear();
-            greenList.clear();
-            linesModel = adapter.getLinesById(productId);
-            if (linesModel.getLoaded() == 0) {
-                redList.addAll(headersList);
-            } else {
-                greenList.addAll(headersList);
-            }
+//            redList.clear();
+//            greenList.clear();
+//            //LinesModel linesModel = adapter.getLinesById(productId);
+//            LinesModel linesModel = adapter.getLinesByOrderIdOrderDetails("" + model.getOrderId(),
+//                    "" + Constant.linesMap.get(model.getOrderId()));
+//            Log.d("LINES_MODEL_CHECKING", "clickForRedUpdate: " + linesModel.getLoaded());
+//
+//            List<Integer> listOfId = adapter.getLinesOrderIdByName(linesName);
+//            for (int i = 0; i < listOfId.size(); i++) {
+//                headersList.addAll(adapter.getHeadersByLines(listOfId.get(i)));
+//            }
+//            if (linesModel.getLoaded() == 0) {
+//                redList.addAll(headersList);
+//            } else {
+//                greenList.addAll(headersList);
+//            }
 
-            StringBuilder builder = new StringBuilder();
-            builder.append(model.getOrderId()).append("|").append(linesModel.getOrderDetailId()).append("|")
-                    .append(userId).append("|").append(1).append("|").append(linesModel.getQtyOrdered())
-                    .append("|").append(Constant.getDate()).append("|").append("0.0");
+//            String builder = model.getOrderId() + "|" + linesModel.getOrderDetailId() + "|" +
+//                    userId + "|" + 1 + "|" + linesModel.getQtyOrdered() +
+//                    "|" + Constant.getDate() + "|" + "0.0";
 
-            long checkInsert = adapter.insertQueue(Constant.types[0], builder.toString());
+            String builder = model.getOrderId() + "|" + Constant.linesMap.get(model.getOrderId()) + "|" +
+                    userId + "|" + 1 + "|" + Constant.map.get(model.getOrderId()) +
+                    "|" + Constant.getDate() + "|" + "0.0";
+
+            long checkInsert = adapter.insertQueue(Constant.types[0], builder);
             //postBack(builder.toString());
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    loadNewData();
+                }
+            },1000);
 
-            GreenAdapter greenAdapter = new GreenAdapter(this, greenList, this, linesModel.getTotalItem(), linesModel.getComment());
-            greenListView.setAdapter(greenAdapter);
-            greenAdapter.notifyDataSetChanged();
+//            GreenAdapter greenAdapter = new GreenAdapter(this, greenList, this, linesModel.getTotalItem(), linesModel.getComment());
+//            greenListView.setAdapter(greenAdapter);
+//            greenAdapter.notifyDataSetChanged();
             //loadData(model.getOrderId());
             //onBackPressed();
         } else {

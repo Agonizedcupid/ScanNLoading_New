@@ -30,6 +30,7 @@ public class Constant {
     public static int PIN_CODE = 0;
 
     public static Map<Integer, Integer> map = new HashMap<>();
+    public static Map<Integer, Integer> linesMap = new HashMap<>();
 
     /*
     0 == Black zone

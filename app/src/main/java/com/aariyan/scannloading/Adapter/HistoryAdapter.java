@@ -2,6 +2,7 @@ package com.aariyan.scannloading.Adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.aariyan.scannloading.Activity.HistoryRectifying;
 import com.aariyan.scannloading.Constant.Constant;
+import com.aariyan.scannloading.Database.DatabaseAdapter;
 import com.aariyan.scannloading.Interface.LinesRectifying;
 import com.aariyan.scannloading.Model.LinesModel;
 import com.aariyan.scannloading.R;
@@ -26,10 +28,12 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 
     private Context context;
     private List<LinesModel> list;
+    private DatabaseAdapter databaseAdapter;
 
     public HistoryAdapter(Context context, List<LinesModel> list) {
         this.context = context;
         this.list = list;
+        databaseAdapter = new DatabaseAdapter(context);
     }
 
     @NonNull
@@ -44,11 +48,31 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
         //holder.itemQuantity.setText(String.valueOf(model.getQtyOrdered()));
         holder.itemQuantity.setText(String.valueOf(model.getTotalItem()));
         holder.itemName.setText(model.getPastelDescription());
-        if (model.getLoaded() == 0) {
-            holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.holo_red_dark));
-        } else {
-            holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.holo_green_dark));
+        Log.d("TESTING_LOADED", "onBindViewHolder: "+model.getLoaded() + " : "+model.getPastelDescription());
+        String name = model.getPastelDescription();
+
+        boolean flag = false;
+        List<LinesModel> linesList = databaseAdapter.getLinesByName(name);
+        for (LinesModel lines : linesList) {
+            if (lines.getLoaded() == 1) {
+                flag = true;
+            } else {
+                flag = false;
+                break;
+            }
         }
+        if (flag) {
+            holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.holo_green_dark));
+
+        } else {
+            holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.holo_red_dark));
+        }
+
+//        if (model.getLoaded() == 0) {
+//            holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.holo_red_dark));
+//        } else {
+//            holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.holo_green_dark));
+//        }
 
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override

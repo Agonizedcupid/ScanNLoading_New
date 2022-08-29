@@ -312,12 +312,15 @@ public class DatabaseAdapter {
         Cursor cursor = database.query(DatabaseHelper.LINES_TABLE_NAME, columns, selection, args, null, null, null);
         while (cursor.moveToNext()) {
             list.add(cursor.getInt(13));
+            //order id = 13, 7 =
             Constant.map.put(cursor.getInt(13), cursor.getInt(7));
-            Log.d("DATABASE_TESTING", "getLinesOrderIdByName: "+cursor.getInt(7));
+            Constant.linesMap.put(cursor.getInt(13), cursor.getInt(14));
+            Log.d("DATABASE_TESTING", "getLinesOrderIdByName: " + cursor.getInt(7));
         }
         return list;
 
     }
+
 
     //get HEADER by User Name , date, route Name, order types, user id
     public List<LinesModel> getLines() {
@@ -471,6 +474,52 @@ public class DatabaseAdapter {
 
 
         String[] args = {"" + productID};
+        String[] columns = {DatabaseHelper.UID, DatabaseHelper.blnPickeds, DatabaseHelper.Loadeds, DatabaseHelper.PastelCode,
+                DatabaseHelper.PastelDescription, DatabaseHelper.ProductId, DatabaseHelper.Qty, DatabaseHelper.QtyOrdered,
+                DatabaseHelper.Price, DatabaseHelper.Comment, DatabaseHelper.UnitSize, DatabaseHelper.strBulkUnit
+                , DatabaseHelper.UnitWeight, DatabaseHelper.OrderIds, DatabaseHelper.OrderDetailId, DatabaseHelper.BarCode, DatabaseHelper.ScannedQty
+                , DatabaseHelper.isRandom, DatabaseHelper.PickingTeam, DatabaseHelper.FLAG, "SUM(" + DatabaseHelper.QtyOrdered + ")"};
+
+        Cursor cursor = database.query(DatabaseHelper.LINES_TABLE_NAME, columns, selection, args, null, null, null);
+        LinesModel model = null;
+        while (cursor.moveToNext()) {
+            model = new LinesModel(
+                    cursor.getInt(1),
+                    cursor.getInt(2),
+                    cursor.getString(3),
+                    cursor.getString(4),
+                    cursor.getInt(5),
+                    cursor.getInt(6),
+                    cursor.getInt(7),
+                    cursor.getDouble(8),
+                    cursor.getString(9),
+                    cursor.getString(10),
+                    cursor.getString(11),
+                    cursor.getInt(12),
+                    cursor.getInt(13),
+                    cursor.getInt(14),
+                    cursor.getString(15),
+                    cursor.getString(16),
+                    cursor.getInt(17),
+                    cursor.getString(18),
+                    cursor.getInt(19), cursor.getInt(20)
+            );
+            //linesList.add(model);
+        }
+        return model;
+
+    }
+
+    public LinesModel getLinesByOrderIdOrderDetails(String orderId, String orderDetailsId) {
+
+        linesList.clear();
+        SQLiteDatabase database = helper.getWritableDatabase();
+        //select * from tableName where name = ? and customerName = ?:
+        // String selection = DatabaseHelper.USER_NAME+" where ? AND "+DatabaseHelper.CUSTOMER_NAME+" LIKE ?";
+        String selection = DatabaseHelper.OrderIds + "=? AND " + DatabaseHelper.OrderDetailId + "=?";
+
+
+        String[] args = {"" + orderId, "" + orderDetailsId};
         String[] columns = {DatabaseHelper.UID, DatabaseHelper.blnPickeds, DatabaseHelper.Loadeds, DatabaseHelper.PastelCode,
                 DatabaseHelper.PastelDescription, DatabaseHelper.ProductId, DatabaseHelper.Qty, DatabaseHelper.QtyOrdered,
                 DatabaseHelper.Price, DatabaseHelper.Comment, DatabaseHelper.UnitSize, DatabaseHelper.strBulkUnit
