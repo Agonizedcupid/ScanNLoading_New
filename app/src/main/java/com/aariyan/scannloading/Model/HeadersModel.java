@@ -18,10 +18,12 @@ public class HeadersModel {
     String date;
     int routeName, orderTypes, userId;
 
+    String color;
+
     public HeadersModel() {
     }
 
-    public HeadersModel(String storeName, String route, int deliverySequence, int invoiced, String invoiceNo, String orderNo, String customerPastelCode, int customerId, String MESSAGESINV, String userName, int orderId, String strLoadedBy, int loaded, int blnPicked, int blnPriority, String deladdress, int value, String orderDate, String condition, String strCrateName, String date, int routeName, int orderTypes, int userId) {
+    public HeadersModel(String storeName, String route, int deliverySequence, int invoiced, String invoiceNo, String orderNo, String customerPastelCode, int customerId, String MESSAGESINV, String userName, int orderId, String strLoadedBy, int loaded, int blnPicked, int blnPriority, String deladdress, int value, String orderDate, String condition, String strCrateName, String date, int routeName, int orderTypes, int userId, String color) {
         StoreName = storeName;
         Route = route;
         DeliverySequence = deliverySequence;
@@ -46,6 +48,15 @@ public class HeadersModel {
         this.routeName = routeName;
         this.orderTypes = orderTypes;
         this.userId = userId;
+        this.color = color;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
     }
 
     public String getDate() {
@@ -80,7 +91,7 @@ public class HeadersModel {
         this.userId = userId;
     }
 
-    public HeadersModel(String storeName, String route, int deliverySequence, int invoiced, String invoiceNo, String orderNo, String customerPastelCode, int customerId, String MESSAGESINV, String userName, int orderId, String strLoadedBy, int loaded, int blnPicked, int blnPriority, String deladdress, int value, String orderDate, String condition, String strCrateName) {
+    public HeadersModel(String storeName, String route, int deliverySequence, int invoiced, String invoiceNo, String orderNo, String customerPastelCode, int customerId, String MESSAGESINV, String userName, int orderId, String strLoadedBy, int loaded, int blnPicked, int blnPriority, String deladdress, int value, String orderDate, String condition, String strCrateName, String colors) {
         StoreName = storeName;
         Route = route;
         DeliverySequence = deliverySequence;
@@ -101,6 +112,7 @@ public class HeadersModel {
         OrderDate = orderDate;
         this.condition = condition;
         this.strCrateName = strCrateName;
+        this.color = colors;
     }
 
     public String getStoreName() {

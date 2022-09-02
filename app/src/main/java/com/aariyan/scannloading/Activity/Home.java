@@ -41,6 +41,7 @@ import com.aariyan.scannloading.Model.QueueModel;
 import com.aariyan.scannloading.Model.RouteModel;
 import com.aariyan.scannloading.R;
 import com.aariyan.scannloading.Service.PostLinesService;
+import com.android.volley.Header;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
@@ -52,7 +53,9 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Home extends AppCompatActivity {
 
@@ -98,6 +101,8 @@ public class Home extends AppCompatActivity {
     private List<Integer> flagList = new ArrayList<>();
 
     private ImageView dropTable;
+
+    Map<Integer, Integer> map = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -233,7 +238,7 @@ public class Home extends AppCompatActivity {
         } catch (Exception e) {
             //If any error happen make it visible and show a warning message:
             //warningMessage.setVisibility(View.VISIBLE);
-           // warningMessage.setText("Error: " + e.getMessage());
+            // warningMessage.setText("Error: " + e.getMessage());
             topProgressbar.setVisibility(View.GONE);
         }
 
@@ -283,10 +288,6 @@ public class Home extends AppCompatActivity {
 
     @Override
     protected void onResume() {
-
-
-
-
         if (databaseAdapter.getQueue().size() > 0) {
             QueueAdapter queueAdapter = new QueueAdapter(this, databaseAdapter.getQueue());
             queueRecyclerView.setAdapter(queueAdapter);
@@ -458,19 +459,19 @@ public class Home extends AppCompatActivity {
 
     }
 
-    private void loadingResumeData() {
-        if (headerLinesList.size() > 0) {
-            //Toast.makeText(this, "Ache", Toast.LENGTH_SHORT).show();
-            recyclerView.setVisibility(View.VISIBLE);
-            //warningMessage.setVisibility(View.GONE);
-            adapter = new HeaderLinesAdapter(Home.this, headerLinesList);
-            recyclerView.setAdapter(adapter);
-            adapter.notifyDataSetChanged();
-            //Snackbar.make(snackBarLayout, "Data is showing from local storage.", Snackbar.LENGTH_LONG).show();
-        } else {
-
-        }
-    }
+//    private void loadingResumeData() {
+//        if (headerLinesList.size() > 0) {
+//            //Toast.makeText(this, "Ache", Toast.LENGTH_SHORT).show();
+//            recyclerView.setVisibility(View.VISIBLE);
+//            //warningMessage.setVisibility(View.GONE);
+//            adapter = new HeaderLinesAdapter(Home.this, headerLinesList);
+//            recyclerView.setAdapter(adapter);
+//            adapter.notifyDataSetChanged();
+//            //Snackbar.make(snackBarLayout, "Data is showing from local storage.", Snackbar.LENGTH_LONG).show();
+//        } else {
+//
+//        }
+//    }
 
     private void loadingData(int check) {
         //headerLinesList.clear();
@@ -502,10 +503,14 @@ public class Home extends AppCompatActivity {
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();
                                 //headerLinesList = databaseAdapter.getHeaderByDateRouteNameOrderTypes(date, selectedRoute, selectedOrder, userId);
-                                headerLinesList = databaseAdapter.getHeaders();
+                                for (HeadersModel model : databaseAdapter.getHeaders()) {
+                                    String colors = pickingUpColor(model.getOrderId());
+                                    model.setColor(colors);
+                                    headerLinesList.add(model);
+                                }
                                 recyclerView.setVisibility(View.VISIBLE);
                                 //warningMessage.setVisibility(View.GONE);
-                                adapter = new HeaderLinesAdapter(Home.this, headerLinesList);
+                                adapter = new HeaderLinesAdapter(Home.this, headerLinesList, map);
                                 recyclerView.setAdapter(adapter);
                                 adapter.notifyDataSetChanged();
                             }
@@ -520,10 +525,14 @@ public class Home extends AppCompatActivity {
                 alertDialog.show();
             } else {
                 //headerLinesList = databaseAdapter.getHeaderByDateRouteNameOrderTypes(date, selectedRoute, selectedOrder, userId);
-                headerLinesList = databaseAdapter.getHeaders();
+                for (HeadersModel model : databaseAdapter.getHeaders()) {
+                    String colors = pickingUpColor(model.getOrderId());
+                    model.setColor(colors);
+                    headerLinesList.add(model);
+                }
                 recyclerView.setVisibility(View.VISIBLE);
                 //warningMessage.setVisibility(View.GONE);
-                adapter = new HeaderLinesAdapter(Home.this, headerLinesList);
+                adapter = new HeaderLinesAdapter(Home.this, headerLinesList, map);
                 recyclerView.setAdapter(adapter);
                 recyclerView.scrollToPosition(position);
                 adapter.notifyDataSetChanged();
@@ -541,10 +550,14 @@ public class Home extends AppCompatActivity {
                                 public void onClick(DialogInterface dialog, int which) {
                                     dialog.dismiss();
                                     //headerLinesList = databaseAdapter.getHeaderByDateRouteNameOrderTypes(date, selectedRoute, selectedOrder, userId);
-                                    headerLinesList = databaseAdapter.getHeaders();
+                                    for (HeadersModel model : databaseAdapter.getHeaders()) {
+                                        String colors = pickingUpColor(model.getOrderId());
+                                        model.setColor(colors);
+                                        headerLinesList.add(model);
+                                    }
                                     recyclerView.setVisibility(View.VISIBLE);
                                     //warningMessage.setVisibility(View.GONE);
-                                    adapter = new HeaderLinesAdapter(Home.this, headerLinesList);
+                                    adapter = new HeaderLinesAdapter(Home.this, headerLinesList, map);
                                     recyclerView.setAdapter(adapter);
                                     adapter.notifyDataSetChanged();
                                 }
@@ -565,10 +578,16 @@ public class Home extends AppCompatActivity {
 
             } else {
                 headerLinesList.clear();
-                headerLinesList = databaseAdapter.getHeaders();
+                for (HeadersModel model : databaseAdapter.getHeaders()) {
+                    String colors = pickingUpColor(model.getOrderId());
+                    model.setColor(colors);
+                    headerLinesList.add(model);
+                }
+                //headerLinesList = databaseAdapter.getHeaders();
+                //pickingUpColor(headerLinesList);
                 recyclerView.setVisibility(View.VISIBLE);
                 //warningMessage.setVisibility(View.GONE);
-                adapter = new HeaderLinesAdapter(Home.this, headerLinesList);
+                adapter = new HeaderLinesAdapter(Home.this, headerLinesList, map);
                 recyclerView.setAdapter(adapter);
                 recyclerView.scrollToPosition(position);
                 adapter.notifyDataSetChanged();
@@ -605,6 +624,60 @@ public class Home extends AppCompatActivity {
             JSONArray Headers = finalResponse.getJSONArray("Headers");
             JSONArray Lines = finalResponse.getJSONArray("Lines");
 
+
+            linesList.clear();
+            if (Lines.length() > 0) {
+                for (int i = 0; i < Lines.length(); i++) {
+                    JSONObject single = Lines.getJSONObject(i);
+                    int blnPicked = single.getInt("blnPicked");
+                    int Loaded = single.getInt("Loaded");
+                    String PastelCode = single.getString("PastelCode");
+                    String PastelDescription = single.getString("PastelDescription");
+                    int ProductId = single.getInt("ProductId");
+                    int Qty = single.getInt("Qty");
+                    //int Qty = 777;
+                    int QtyOrdered = single.getInt("QtyOrdered");
+                    double Price = single.getDouble("Price");
+                    String Comment = single.getString("Comment");
+                    String UnitSize = single.getString("UnitSize");
+                    String strBulkUnit = single.getString("strBulkUnit");
+                    int UnitWeight = single.getInt("UnitWeight");
+                    int OrderId = single.getInt("OrderId");
+                    int OrderDetailId = single.getInt("OrderDetailId");
+                    String BarCode = single.getString("BarCode");
+                    String ScannedQty = single.getString("ScannedQty");
+                    int isRandom = single.getInt("isRandom");
+                    String PickingTeam = single.getString("PickingTeam");
+
+                    LinesModel linesModel = new LinesModel(
+                            blnPicked, Loaded, PastelCode, PastelDescription, ProductId, Qty, QtyOrdered,
+                            Price, Comment, UnitSize, strBulkUnit, UnitWeight, OrderId, OrderDetailId, BarCode,
+                            ScannedQty, isRandom, PickingTeam
+                    );
+
+                    linesList.add(linesModel);
+
+                    //if data is not empty
+                    if (Headers.length() > 0 && Lines.length() > 0) {
+                        // Insert into SQLite:
+                        long id = databaseAdapter.insertLines(blnPicked, Loaded, PastelCode, PastelDescription, ProductId, Qty, QtyOrdered, Price, Comment,
+                                UnitSize, strBulkUnit, UnitWeight, OrderId, OrderDetailId, BarCode, ScannedQty, isRandom, PickingTeam,
+                                date, selectedRoute, selectedOrder, userId);
+                        Log.d("CHECKING_SIZE", "parseOrdernOrderJson: " + id + " - " + Lines.length());
+                        if (id > 0) {
+                            //Snackbar.make(snackBarLayout, "Data also saved on local database", Snackbar.LENGTH_SHORT).show();
+                        }
+                    }
+                }
+
+                //loadLines();
+            } else {
+                progressBar.setVisibility(View.GONE);
+                //warningMessage.setVisibility(View.VISIBLE);
+                //warningMessage.setText("No data found!");
+                recyclerView.setVisibility(View.GONE);
+
+            }
 
 //            headerLinesList.clear();
 //            if (Headers.length() > 0) {
@@ -715,7 +788,7 @@ public class Home extends AppCompatActivity {
                     String condition = single.getString("condition");
                     String strCrateName = single.getString("strCrateName");
 
-
+                    String colors = pickingUpColor(OrderId);
                     HeadersModel model = new HeadersModel(StoreName,
                             Route,
                             DeliverySequence,
@@ -735,7 +808,7 @@ public class Home extends AppCompatActivity {
                             Value,
                             OrderDate,
                             condition,
-                            strCrateName);
+                            strCrateName, colors);
                     headerLinesList.add(model);
 
                     //if data is not empty
@@ -754,7 +827,7 @@ public class Home extends AppCompatActivity {
 
                 recyclerView.setVisibility(View.VISIBLE);
 
-                adapter = new HeaderLinesAdapter(Home.this, headerLinesList);
+                adapter = new HeaderLinesAdapter(Home.this, headerLinesList, map);
                 recyclerView.setAdapter(adapter);
                 recyclerView.scrollToPosition(position);
                 adapter.notifyDataSetChanged();
@@ -768,61 +841,6 @@ public class Home extends AppCompatActivity {
                 //warningMessage.setText("No data found!");
                 recyclerView.setVisibility(View.GONE);
             }
-
-            linesList.clear();
-            if (Lines.length() > 0) {
-                for (int i = 0; i < Lines.length(); i++) {
-                    JSONObject single = Lines.getJSONObject(i);
-                    int blnPicked = single.getInt("blnPicked");
-                    int Loaded = single.getInt("Loaded");
-                    String PastelCode = single.getString("PastelCode");
-                    String PastelDescription = single.getString("PastelDescription");
-                    int ProductId = single.getInt("ProductId");
-                    int Qty = single.getInt("Qty");
-                    //int Qty = 777;
-                    int QtyOrdered = single.getInt("QtyOrdered");
-                    double Price = single.getDouble("Price");
-                    String Comment = single.getString("Comment");
-                    String UnitSize = single.getString("UnitSize");
-                    String strBulkUnit = single.getString("strBulkUnit");
-                    int UnitWeight = single.getInt("UnitWeight");
-                    int OrderId = single.getInt("OrderId");
-                    int OrderDetailId = single.getInt("OrderDetailId");
-                    String BarCode = single.getString("BarCode");
-                    String ScannedQty = single.getString("ScannedQty");
-                    int isRandom = single.getInt("isRandom");
-                    String PickingTeam = single.getString("PickingTeam");
-
-                    LinesModel linesModel = new LinesModel(
-                            blnPicked, Loaded, PastelCode, PastelDescription, ProductId, Qty, QtyOrdered,
-                            Price, Comment, UnitSize, strBulkUnit, UnitWeight, OrderId, OrderDetailId, BarCode,
-                            ScannedQty, isRandom, PickingTeam
-                    );
-
-                    linesList.add(linesModel);
-
-                    //if data is not empty
-                    if (Headers.length() > 0 && Lines.length() > 0) {
-                        // Insert into SQLite:
-                        long id = databaseAdapter.insertLines(blnPicked, Loaded, PastelCode, PastelDescription, ProductId, Qty, QtyOrdered, Price, Comment,
-                                UnitSize, strBulkUnit, UnitWeight, OrderId, OrderDetailId, BarCode, ScannedQty, isRandom, PickingTeam,
-                                date, selectedRoute, selectedOrder, userId);
-                        Log.d("CHECKING_SIZE", "parseOrdernOrderJson: " + id + " - " + Lines.length());
-                        if (id > 0) {
-                            //Snackbar.make(snackBarLayout, "Data also saved on local database", Snackbar.LENGTH_SHORT).show();
-                        }
-                    }
-                }
-                //loadLines();
-            } else {
-                progressBar.setVisibility(View.GONE);
-                //warningMessage.setVisibility(View.VISIBLE);
-                //warningMessage.setText("No data found!");
-                recyclerView.setVisibility(View.GONE);
-
-            }
-
-
         } catch (Exception e) {
             e.printStackTrace();
             //Toast.makeText(Home.this, "" + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -832,6 +850,25 @@ public class Home extends AppCompatActivity {
             recyclerView.setVisibility(View.GONE);
 
         }
+    }
+
+    private String pickingUpColor(int orderID) {
+        String colors = "";
+        int countZero = databaseAdapter.countZero(orderID);
+        //Green
+        int countOne = databaseAdapter.countOne(orderID);
+
+        List<LinesModel> listOfLines = databaseAdapter.getLinesByDateRouteNameOrderTypes(orderID);
+
+        if (countOne == listOfLines.size()) {
+            //holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.holo_green_dark));
+            colors = "GREEN";
+        } else if (countZero > 0 && countOne > 0) {
+            colors = "YELLOW";
+        } else {
+            colors = "WHITE";
+        }
+        return colors;
     }
 
     private void showDate() {

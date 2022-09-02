@@ -22,17 +22,20 @@ import com.aariyan.scannloading.Model.LinesModel;
 import com.aariyan.scannloading.R;
 
 import java.util.List;
+import java.util.Map;
 
 public class HeaderLinesAdapter extends RecyclerView.Adapter<HeaderLinesAdapter.ViewHolder> {
 
     private Context context;
     private List<HeadersModel> list;
     DatabaseAdapter databaseAdapter;
+    Map<Integer, Integer> map;
     int count0, count1, count2;
 
-    public HeaderLinesAdapter(Context context, List<HeadersModel> list) {
+    public HeaderLinesAdapter(Context context, List<HeadersModel> list, Map<Integer, Integer> map) {
         this.context = context;
         this.list = list;
+        this.map = map;
         databaseAdapter = new DatabaseAdapter(context);
     }
 
@@ -44,7 +47,8 @@ public class HeaderLinesAdapter extends RecyclerView.Adapter<HeaderLinesAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        HeadersModel model = list.get(position);
+        HeadersModel model = list.get(holder.getAdapterPosition());
+
         holder.storeName.setText(model.getStoreName());
         holder.orderId.setText(String.format(" # %s", model.getOrderId()));
 
@@ -55,7 +59,7 @@ public class HeaderLinesAdapter extends RecyclerView.Adapter<HeaderLinesAdapter.
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                Constant.position = position;
+                Constant.position = holder.getAdapterPosition();
                 Intent intent = new Intent(context, HeaderNLineActivity.class);
                 intent.putExtra("orderId", model.getOrderId());
                 intent.putExtra("storeName", model.getStoreName());
@@ -65,31 +69,48 @@ public class HeaderLinesAdapter extends RecyclerView.Adapter<HeaderLinesAdapter.
                 intent.putExtra("invoiceNo", model.getInvoiceNo());
                 intent.putExtra("address", model.getDeladdress());
                 intent.putExtra("value", model.getValue());
-                intent.putExtra("position", position);
+                intent.putExtra("position", holder.getAdapterPosition());
                 context.startActivity(intent);
                 return true;
             }
         });
-        //Black
-        int countZero = databaseAdapter.countZero(model.getOrderId());
-        //Green
-        int countOne = databaseAdapter.countOne(model.getOrderId());
-        //Red
-        int countTwo = databaseAdapter.countTwo(model.getOrderId());
 
-        Log.d("FLAG_TESTING", list.size()+"-" + countZero + "," + countOne + "," + countTwo);
+        Log.d("RESULTING_TESTING", ""+model.getStoreName() + "  :  "+model.getColor());
 
-        List<LinesModel> listOfLines = databaseAdapter.getLinesByDateRouteNameOrderTypes(model.getOrderId());
+        try {
 
-        if (countOne == listOfLines.size()) {
-            holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.holo_green_dark));
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (model.getColor().equals("YELLOW")) {
+                        holder.itemView.setBackgroundColor(context.getResources().getColor(R.color.yellow));
+                    }
+                    if (model.getColor().equals("GREEN")) {
+                        holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.holo_green_dark));
+                    }
+                    if (model.getColor().equals("WHITE")){
+                        holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.white));
+                    }
+                }
+            },1000);
+
+
+//            if (map != null) {
+//                if (map.containsKey(model.getOrderId())) {
+//                    int val = map.get(model.getOrderId());
+//                    if (val == 1) {
+//                        holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.holo_green_dark));
+//                    }
+//                    else if (val == 0) {
+//                        holder.itemView.setBackgroundColor(context.getResources().getColor(R.color.yellow));
+//                    }
+//                }
+//            }
+        } catch (Exception e) {
+
         }
-//        else if (countOne == 0) {
-//            holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.white));
-//        }
-        else if (countZero > 0 && countOne > 0) {
-            holder.itemView.setBackgroundColor(context.getResources().getColor(R.color.yellow));
-        }
+
+
 //        if (countTwo > 0) {
 //            holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.holo_red_dark));
 //        } else if (countOne == 0) {

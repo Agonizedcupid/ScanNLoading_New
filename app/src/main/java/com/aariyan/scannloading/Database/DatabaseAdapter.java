@@ -191,7 +191,7 @@ public class DatabaseAdapter {
                     cursor.getString(21),
                     cursor.getInt(22),
                     cursor.getInt(23),
-                    cursor.getInt(24)
+                    cursor.getInt(24), "WHITE"
             );
             headerList.add(model);
         }
@@ -403,7 +403,7 @@ public class DatabaseAdapter {
                     cursor.getString(21),
                     cursor.getInt(22),
                     cursor.getInt(23),
-                    cursor.getInt(24)
+                    cursor.getInt(24), "WHITE"
             );
             headerList.add(model);
         }
@@ -456,7 +456,7 @@ public class DatabaseAdapter {
                     cursor.getString(21),
                     cursor.getInt(22),
                     cursor.getInt(23),
-                    cursor.getInt(24)
+                    cursor.getInt(24), "WHITE"
             );
             headerList.add(model);
         }
