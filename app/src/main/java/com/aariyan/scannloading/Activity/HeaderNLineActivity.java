@@ -56,7 +56,7 @@ public class HeaderNLineActivity extends AppCompatActivity implements QuantityUp
     private EditText barcodeEditText;
     private MaterialButton submitBtn;
 
-    private int userId = 1;
+    private int userId = Constant.userId;
 
     private RecyclerView greenRecycler, redRecyclerView, blackRecyclerView;
 

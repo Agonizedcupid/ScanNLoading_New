@@ -75,25 +75,18 @@ public class HeaderLinesAdapter extends RecyclerView.Adapter<HeaderLinesAdapter.
             }
         });
 
-        Log.d("RESULTING_TESTING", ""+model.getStoreName() + "  :  "+model.getColor());
+        Log.d("RESULTING_TESTING", "" + model.getStoreName() + "  :  " + model.getColor());
 
         try {
-
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    if (model.getColor().equals("YELLOW")) {
-                        holder.itemView.setBackgroundColor(context.getResources().getColor(R.color.yellow));
-                    }
-                    if (model.getColor().equals("GREEN")) {
-                        holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.holo_green_dark));
-                    }
-                    if (model.getColor().equals("WHITE")){
-                        holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.white));
-                    }
-                }
-            },1000);
-
+            if (model.getColor().equals("YELLOW")) {
+                holder.itemView.setBackgroundColor(context.getResources().getColor(R.color.yellow));
+            }
+            if (model.getColor().equals("GREEN")) {
+                holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.holo_green_dark));
+            }
+            if (model.getColor().equals("WHITE")) {
+                holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.white));
+            }
 
 //            if (map != null) {
 //                if (map.containsKey(model.getOrderId())) {
