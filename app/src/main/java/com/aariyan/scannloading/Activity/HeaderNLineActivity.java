@@ -212,19 +212,19 @@ public class HeaderNLineActivity extends AppCompatActivity implements QuantityUp
             public void onClick(View view) {
                 // First update the line table
                 int flag = 0;
-                if (Integer.parseInt(quantityUpdate.getText().toString()) == model.getQty()) {
+                if (Double.parseDouble(quantityUpdate.getText().toString()) == Double.parseDouble(model.getQty())) {
                     flag = 1;
-                } else if (Integer.parseInt(quantityUpdate.getText().toString()) < model.getQty()) {
+                } else if (Double.parseDouble(quantityUpdate.getText().toString()) < Double.parseDouble(model.getQty())) {
                     flag = 2;
                 }
                 long ids = 0;
 
                 if (model.getLoaded() == 0) {
                     ids = databaseAdapter.updateLinesQuantity(orderId, model.getOrderDetailId(),
-                            userId, Integer.parseInt(quantityUpdate.getText().toString()), 1, 1);
+                            userId, quantityUpdate.getText().toString(), 1, 1);
                 } else {
                     ids = databaseAdapter.updateLinesQuantity(orderId, model.getOrderDetailId(),
-                            userId, Integer.parseInt(quantityUpdate.getText().toString()), 0, 0);
+                            userId, quantityUpdate.getText().toString(), 0, 0);
                 }
 
                 if (ids < 0) {
@@ -313,7 +313,7 @@ public class HeaderNLineActivity extends AppCompatActivity implements QuantityUp
 
 
     @Override
-    public void onClick(int orderId, int orderDetailsId, int userId, int loaded, int quantity, String date, String type, double price, String itemName) {
+    public void onClick(int orderId, int orderDetailsId, int userId, int loaded, String quantity, String date, String type, double price, String itemName) {
         itemNames.setText(itemName);
         quantityUpdate.setText("" + quantity, TextView.BufferType.EDITABLE);
         itemPrice.setText(String.format("%s", price));
@@ -352,9 +352,9 @@ public class HeaderNLineActivity extends AppCompatActivity implements QuantityUp
             public void onClick(View view) {
                 // First update the line table
                 int flag = 0;
-                if (Integer.parseInt(quantityUpdate.getText().toString()) == quantity) {
+                if (Double.parseDouble(quantityUpdate.getText().toString()) == Double.parseDouble(quantity)) {
                     flag = 1;
-                } else if (Integer.parseInt(quantityUpdate.getText().toString()) < quantity) {
+                } else if (Double.parseDouble(quantityUpdate.getText().toString()) < Double.parseDouble(quantity)) {
                     flag = 2;
                 }
 //                long ids = databaseAdapter.updateLinesQuantity(orderId, orderDetailsId,
@@ -364,7 +364,7 @@ public class HeaderNLineActivity extends AppCompatActivity implements QuantityUp
 
                 if (loaded == 0) {
                     ids = databaseAdapter.updateLinesQuantity(orderId, orderDetailsId,
-                            userId, Integer.parseInt(quantityUpdate.getText().toString()), 1, 1);
+                            userId, quantityUpdate.getText().toString(), 1, 1);
 
                     StringBuilder builder = new StringBuilder();
                     builder.append(orderId).append("|").append(orderDetailsId).append("|")
@@ -382,7 +382,7 @@ public class HeaderNLineActivity extends AppCompatActivity implements QuantityUp
 
                 } else {
                     ids = databaseAdapter.updateLinesQuantity(orderId, orderDetailsId,
-                            userId, Integer.parseInt(quantityUpdate.getText().toString()), 0, 0);
+                            userId, quantityUpdate.getText().toString(), 0, 0);
                     //then insert data into Queue table to sync on server:
                     StringBuilder builder = new StringBuilder();
                     builder.append(orderId).append("|").append(orderDetailsId).append("|")
@@ -486,7 +486,7 @@ public class HeaderNLineActivity extends AppCompatActivity implements QuantityUp
     }
 
     @Override
-    public void onSingleClick(int orderId, int orderDetailsId, int userId, int loaded, int quantity, String date, String type, double price, String itemName) {
+    public void onSingleClick(int orderId, int orderDetailsId, int userId, int loaded, String quantity, String date, String type, double price, String itemName) {
         long ids = 0;
         int flag = 1;
         if (loaded == 0) {

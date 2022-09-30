@@ -650,7 +650,7 @@ public class Home extends AppCompatActivity {
                     String PickingTeam = single.getString("PickingTeam");
 
                     LinesModel linesModel = new LinesModel(
-                            blnPicked, Loaded, PastelCode, PastelDescription, ProductId, Qty, QtyOrdered,
+                            blnPicked, Loaded, PastelCode, PastelDescription, ProductId, ""+Qty, ""+QtyOrdered,
                             Price, Comment, UnitSize, strBulkUnit, UnitWeight, OrderId, OrderDetailId, BarCode,
                             ScannedQty, isRandom, PickingTeam
                     );

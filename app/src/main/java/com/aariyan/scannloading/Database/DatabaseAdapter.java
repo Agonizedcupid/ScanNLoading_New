@@ -70,7 +70,7 @@ public class DatabaseAdapter {
 
     //Insert Lines:
     public long insertLines(int blnPickeds, int loadeds, String pastelCode, String pastelDescription,
-                            int productId, int qty, int qtyOrdered, double price, String comment,
+                            int productId, double qty, int qtyOrdered, double price, String comment,
                             String unitSize, String strBulkUnit, int unitWeight, int orderId,
                             int orderDetailId, String barCode, String scannedQty, int isRandom, String pickingTeam,
                             String date, int routeName, int orderTypes, int userId) {
@@ -225,8 +225,8 @@ public class DatabaseAdapter {
                     cursor.getString(3),
                     cursor.getString(4),
                     cursor.getInt(5),
-                    cursor.getInt(6),
-                    cursor.getInt(7),
+                    cursor.getString(6),
+                    cursor.getString(7),
                     cursor.getDouble(8),
                     cursor.getString(9),
                     cursor.getString(10),
@@ -271,8 +271,8 @@ public class DatabaseAdapter {
                     cursor.getString(3),
                     cursor.getString(4),
                     cursor.getInt(5),
-                    cursor.getInt(6),
-                    cursor.getInt(7),
+                    cursor.getString(6),
+                    cursor.getString(7),
                     cursor.getDouble(8),
                     cursor.getString(9),
                     cursor.getString(10),
@@ -344,8 +344,8 @@ public class DatabaseAdapter {
                     cursor.getString(3),
                     cursor.getString(4),
                     cursor.getInt(5),
-                    cursor.getInt(6),
-                    cursor.getInt(7),
+                    cursor.getString(6),
+                    cursor.getString(7),
                     cursor.getDouble(8),
                     cursor.getString(9),
                     cursor.getString(10),
@@ -489,8 +489,8 @@ public class DatabaseAdapter {
                     cursor.getString(3),
                     cursor.getString(4),
                     cursor.getInt(5),
-                    cursor.getInt(6),
-                    cursor.getInt(7),
+                    cursor.getString(6),
+                    cursor.getString(7),
                     cursor.getDouble(8),
                     cursor.getString(9),
                     cursor.getString(10),
@@ -535,8 +535,8 @@ public class DatabaseAdapter {
                     cursor.getString(3),
                     cursor.getString(4),
                     cursor.getInt(5),
-                    cursor.getInt(6),
-                    cursor.getInt(7),
+                    cursor.getString(6),
+                    cursor.getString(7),
                     cursor.getDouble(8),
                     cursor.getString(9),
                     cursor.getString(10),
@@ -588,7 +588,7 @@ public class DatabaseAdapter {
     }
 
     //Update Quantity of lines table, as well as changing the flag value using orderId & orderDetailsId:
-    public long updateLinesQuantity(int orderId, int orderDetailsId, int userId, int quantity, int flag, int loaded) {
+    public long updateLinesQuantity(int orderId, int orderDetailsId, int userId, String quantity, int flag, int loaded) {
         SQLiteDatabase database = helper.getWritableDatabase();
         String selection = DatabaseHelper.OrderIds + " LIKE ? AND " + DatabaseHelper.OrderDetailId + " LIKE ? ";
         String[] args = {"" + orderId, "" + orderDetailsId};
@@ -872,8 +872,8 @@ public class DatabaseAdapter {
                 + PastelCode + " VARCHAR(255),"
                 + PastelDescription + " VARCHAR(255),"
                 + ProductId + " INTEGER,"
-                + Qty + " INTEGER,"
-                + QtyOrdered + " INTEGER,"
+                + Qty + " VARCHAR(255),"
+                + QtyOrdered + " VARCHAR(255),"
                 + Price + " REAL,"
                 + Comment + " VARCHAR(255),"
                 + UnitSize + " VARCHAR(255),"

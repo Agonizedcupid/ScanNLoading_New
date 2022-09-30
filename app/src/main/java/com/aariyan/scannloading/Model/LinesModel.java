@@ -3,7 +3,8 @@ package com.aariyan.scannloading.Model;
 public class LinesModel {
     private int blnPicked,Loaded;
     private String PastelCode,PastelDescription;
-    private int ProductId,Qty,QtyOrdered;
+    private int ProductId;
+    private String Qty,QtyOrdered;
     private double Price;
     private String Comment,UnitSize,strBulkUnit;
     private int UnitWeight,OrderId,OrderDetailId;
@@ -18,7 +19,7 @@ public class LinesModel {
     //Flag Constructor:
 
 
-    public LinesModel(int blnPicked, int loaded, String pastelCode, String pastelDescription, int productId, int qty, int qtyOrdered, double price, String comment, String unitSize, String strBulkUnit, int unitWeight, int orderId, int orderDetailId, String barCode, String scannedQty, int isRandom, String pickingTeam, int flag,int totalItem) {
+    public LinesModel(int blnPicked, int loaded, String pastelCode, String pastelDescription, int productId, String qty, String qtyOrdered, double price, String comment, String unitSize, String strBulkUnit, int unitWeight, int orderId, int orderDetailId, String barCode, String scannedQty, int isRandom, String pickingTeam, int flag,int totalItem) {
         this.blnPicked = blnPicked;
         Loaded = loaded;
         PastelCode = pastelCode;
@@ -57,7 +58,7 @@ public class LinesModel {
         this.flag = flag;
     }
 
-    public LinesModel(int blnPicked, int loaded, String pastelCode, String pastelDescription, int productId, int qty, int qtyOrdered, double price, String comment, String unitSize, String strBulkUnit, int unitWeight, int orderId, int orderDetailId, String barCode, String scannedQty, int isRandom, String pickingTeam) {
+    public LinesModel(int blnPicked, int loaded, String pastelCode, String pastelDescription, int productId, String qty, String qtyOrdered, double price, String comment, String unitSize, String strBulkUnit, int unitWeight, int orderId, int orderDetailId, String barCode, String scannedQty, int isRandom, String pickingTeam) {
         this.blnPicked = blnPicked;
         Loaded = loaded;
         PastelCode = pastelCode;
@@ -119,19 +120,19 @@ public class LinesModel {
         ProductId = productId;
     }
 
-    public int getQty() {
+    public String getQty() {
         return Qty;
     }
 
-    public void setQty(int qty) {
+    public void setQty(String qty) {
         Qty = qty;
     }
 
-    public int getQtyOrdered() {
+    public String getQtyOrdered() {
         return QtyOrdered;
     }
 
-    public void setQtyOrdered(int qtyOrdered) {
+    public void setQtyOrdered(String qtyOrdered) {
         QtyOrdered = qtyOrdered;
     }
 

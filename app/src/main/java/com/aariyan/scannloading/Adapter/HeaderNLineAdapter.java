@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.helper.widget.Layer;
@@ -52,7 +53,7 @@ public class HeaderNLineAdapter extends RecyclerView.Adapter<HeaderNLineAdapter.
             public boolean onLongClick(View view) {
                 quantityUpdater.onClick(model.getOrderId(), model.getOrderDetailId(), Constant.userId,
                         model.getLoaded(), model.getQty(), Constant.getDate(), Constant.types[0], model.getPrice(), model.getPastelDescription());
-                return false;
+                return true;
             }
         });
 
